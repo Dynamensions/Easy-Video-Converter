@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!-- Root element -->
+	<xs:element name="ClientProfile">
+		<xs:complexType>
+			<xs:sequence>
+
+				<!-- Direct Play -->
+				<xs:element name="DirectPlay" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="VideoCodec" type="xs:string" maxOccurs="unbounded"/>
+							<xs:element name="AudioCodec" type="xs:string" maxOccurs="unbounded"/>
+							<xs:element name="Container" type="xs:string" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+				<!-- Direct Stream -->
+				<xs:element name="DirectStream" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="VideoCodec" type="xs:string" maxOccurs="unbounded"/>
+							<xs:element name="AudioCodec" type="xs:string" maxOccurs="unbounded"/>
+							<xs:element name="Container" type="xs:string" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+				<!-- Preferred formats -->
+				<xs:element name="Preferred" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="VideoCodec" type="xs:string" minOccurs="0"/>
+							<xs:element name="AudioCodec" type="xs:string" minOccurs="0"/>
+							<xs:element name="Container" type="xs:string" minOccurs="0"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+				<!-- Limits -->
+				<xs:element name="Limits" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="MaxWidth" type="xs:int" minOccurs="0"/>
+							<xs:element name="MaxHeight" type="xs:int" minOccurs="0"/>
+							<xs:element name="MaxAudioChannels" type="xs:int" minOccurs="0"/>
+							<xs:element name="MaxBitrate" type="xs:int" minOccurs="0"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+				<!-- Requirements -->
+				<xs:element name="Requirements" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="StrictH264" type="xs:boolean" minOccurs="0"/>
+							<xs:element name="Profile" type="xs:string" minOccurs="0"/>
+							<xs:element name="Level" type="xs:string" minOccurs="0"/>
+							<xs:element name="BitDepth" type="xs:int" minOccurs="0"/>
+							<xs:element name="ForceStereoDownmix" type="xs:boolean" minOccurs="0"/>
+							<xs:element name="RequiresAacStereoFallback" type="xs:boolean" minOccurs="0"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+				<!-- Subtitle capabilities -->
+				<xs:element name="Subtitles" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Internal" type="xs:boolean" minOccurs="0"/>
+							<xs:element name="External" type="xs:boolean" minOccurs="0"/>
+							<xs:element name="SRT" type="xs:boolean" minOccurs="0"/>
+							<xs:element name="PGS" type="xs:boolean" minOccurs="0"/>
+							<xs:element name="MovText" type="xs:boolean" minOccurs="0"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+				<!-- Description -->
+				<xs:element name="Description" type="xs:string" minOccurs="0"/>
+
+			</xs:sequence>
+			<!-- Attributes -->
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="family" type="xs:string" use="required"/>
+			<xs:attribute name="deviceType" type="deviceType" use="required"/>
+			
+
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Define the enumeration type as a global simpleType so it can be referenced by attributes -->
+	<xs:simpleType name="deviceType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Unknown"/>
+			<xs:enumeration value="StreamingBox"/>
+			<xs:enumeration value="StreamingDongle"/>
+			<xs:enumeration value="SmartTV"/>
+			<xs:enumeration value="GameConsole"/>
+			<xs:enumeration value="PC"/>
+			<xs:enumeration value="Mobile"/>
+			<xs:enumeration value="Tablet"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+</xs:schema>

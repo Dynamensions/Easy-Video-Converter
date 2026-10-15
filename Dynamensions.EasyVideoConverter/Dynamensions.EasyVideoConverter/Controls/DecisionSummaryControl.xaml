@@ -1,0 +1,62 @@
+<UserControl
+    x:Class="Dynamensions.EasyVideoConverter.Controls.DecisionSummaryControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Dynamensions.EasyVideoConverter.Controls"
+    xmlns:converters="using:Dynamensions.EasyVideoConverter.Converters">
+    <UserControl.Resources>
+        <converters:UniversalColorToBrushConverter x:Key="UniversalColorToBrushConverter" />
+    </UserControl.Resources>
+        <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT COLUMN -->
+        <StackPanel Grid.Column="0" Spacing="8">
+
+            <!-- VIDEO -->
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE714;" FontSize="16" Foreground="{x:Bind Decision.VideoColor, Converter={StaticResource UniversalColorToBrushConverter}}"/>
+                <TextBlock Text="{x:Bind Decision.VideoSummary}" FontSize="14"/>
+            </StackPanel>
+
+            <!-- RESOLUTION / SCALING -->
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE7F4;" FontSize="16" Foreground="{x:Bind Decision.ResolutionAndScalingColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
+                <TextBlock Text="{x:Bind Decision.ResolutionAndScalingSummary}" FontSize="14"/>
+            </StackPanel>
+
+            <!-- SAR -->
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE8D4;" FontSize="16" Foreground="{x:Bind Decision.SarColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
+                <TextBlock Text="{x:Bind Decision.SarSummary}" FontSize="14"/>
+            </StackPanel>
+
+        </StackPanel>
+
+        <!-- RIGHT COLUMN -->
+        <StackPanel Grid.Column="1" Spacing="8">
+
+            <!-- AUDIO -->
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE15D;" FontSize="16" Foreground="{x:Bind Decision.AudioColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
+                <TextBlock Text="{x:Bind Decision.AudioSummary}" FontSize="14"/>
+            </StackPanel>
+
+            <!-- SUBTITLES -->
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE8F2;" FontSize="16" Foreground="{x:Bind Decision.SubtitleColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
+                <TextBlock Text="{x:Bind Decision.SubtitleSummary}" FontSize="14"/>
+            </StackPanel>
+
+            <!-- CONTAINER -->
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE7C3;" FontSize="16" Foreground="{x:Bind Decision.ContainerColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
+                <TextBlock Text="{x:Bind Decision.ContainerSummary}" FontSize="14" />
+            </StackPanel>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

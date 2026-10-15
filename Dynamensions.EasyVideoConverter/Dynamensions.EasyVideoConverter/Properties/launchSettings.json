@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Dynamensions.EasyVideoConverter (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Dynamensions.EasyVideoConverter (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

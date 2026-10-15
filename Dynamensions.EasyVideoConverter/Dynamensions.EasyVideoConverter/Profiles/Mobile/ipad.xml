@@ -1,0 +1,49 @@
+﻿<ClientProfile name="iPad (iPadOS)" family="iOS" deviceType="Mobile"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="../schema/profile.xsd">
+
+    <DirectPlay>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>hevc</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <Container>mp4</Container>
+        <Container>mov</Container>
+    </DirectPlay>
+
+    <DirectStream>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>hevc</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <Container>mp4</Container>
+        <Container>mov</Container>
+    </DirectStream>
+
+    <Preferred>
+        <VideoCodec>hevc</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <Container>mp4</Container>
+    </Preferred>
+
+    <Limits>
+        <MaxWidth>2732</MaxWidth>
+        <MaxHeight>2048</MaxHeight>
+        <MaxAudioChannels>2</MaxAudioChannels>
+    </Limits>
+
+    <Requirements>
+        <StrictH264>false</StrictH264>
+        <BitDepth>8</BitDepth>
+        <ForceStereoDownmix>true</ForceStereoDownmix>
+    </Requirements>
+
+    <Subtitles>
+        <Internal>true</Internal>
+        <External>true</External>
+        <SRT>true</SRT>
+        <PGS>false</PGS>
+        <MovText>true</MovText>
+    </Subtitles>
+
+    <Description>iPad DirectPlay profile</Description>
+
+</ClientProfile>

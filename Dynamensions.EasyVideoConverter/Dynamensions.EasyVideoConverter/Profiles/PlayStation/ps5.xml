@@ -1,0 +1,62 @@
+﻿<ClientProfile name="PlayStation 5 (2020)" family="PlayStation" deviceType="GameConsole"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="../schema/profile.xsd">
+
+    <DirectPlay>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>hevc</VideoCodec>
+        <VideoCodec>vp9</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <AudioCodec>ac3</AudioCodec>
+        <AudioCodec>eac3</AudioCodec>
+        <AudioCodec>dts</AudioCodec>
+        <AudioCodec>dts-hd</AudioCodec>
+        <AudioCodec>truehd</AudioCodec>
+        <Container>mp4</Container>
+        <Container>mkv</Container>
+        <Container>mov</Container>
+    </DirectPlay>
+
+    <DirectStream>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>hevc</VideoCodec>
+        <VideoCodec>vp9</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <AudioCodec>ac3</AudioCodec>
+        <AudioCodec>eac3</AudioCodec>
+        <AudioCodec>dts</AudioCodec>
+        <AudioCodec>dts-hd</AudioCodec>
+        <AudioCodec>truehd</AudioCodec>
+        <Container>mkv</Container>
+        <Container>ts</Container>
+    </DirectStream>
+
+    <Preferred>
+        <VideoCodec>hevc</VideoCodec>
+        <AudioCodec>truehd</AudioCodec>
+        <Container>mkv</Container>
+    </Preferred>
+
+    <Limits>
+        <MaxWidth>3840</MaxWidth>
+        <MaxHeight>2160</MaxHeight>
+        <MaxAudioChannels>8</MaxAudioChannels>
+    </Limits>
+
+    <Requirements>
+        <StrictH264>false</StrictH264>
+        <BitDepth>10</BitDepth>
+        <ForceStereoDownmix>false</ForceStereoDownmix>
+    </Requirements>
+
+    <Subtitles>
+        <Internal>true</Internal>
+        <External>true</External>
+        <SRT>true</SRT>
+        <PGS>true</PGS>
+        <MovText>true</MovText>
+    </Subtitles>
+
+    <Description>PlayStation 5 DirectPlay profile</Description>
+
+</ClientProfile>

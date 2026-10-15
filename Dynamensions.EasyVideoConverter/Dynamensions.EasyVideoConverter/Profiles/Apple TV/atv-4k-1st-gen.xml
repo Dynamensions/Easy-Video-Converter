@@ -1,0 +1,53 @@
+﻿<ClientProfile name="Apple TV 4K (1st Gen)" family="Apple TV" deviceType="StreamingBox"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="../schema/profile.xsd">
+
+    <DirectPlay>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>hevc</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <AudioCodec>ac3</AudioCodec>
+        <AudioCodec>eac3</AudioCodec>
+        <Container>mp4</Container>
+        <Container>mkv</Container>
+    </DirectPlay>
+
+    <DirectStream>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>hevc</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <AudioCodec>ac3</AudioCodec>
+        <AudioCodec>eac3</AudioCodec>
+        <Container>mkv</Container>
+        <Container>ts</Container>
+    </DirectStream>
+
+    <Preferred>
+        <VideoCodec>hevc</VideoCodec>
+        <AudioCodec>eac3</AudioCodec>
+        <Container>mkv</Container>
+    </Preferred>
+
+    <Limits>
+        <MaxWidth>3840</MaxWidth>
+        <MaxHeight>2160</MaxHeight>
+        <MaxAudioChannels>8</MaxAudioChannels>
+    </Limits>
+
+    <Requirements>
+        <StrictH264>false</StrictH264>
+        <BitDepth>10</BitDepth>
+        <ForceStereoDownmix>false</ForceStereoDownmix>
+    </Requirements>
+
+    <Subtitles>
+        <Internal>true</Internal>
+        <External>true</External>
+        <SRT>true</SRT>
+        <PGS>true</PGS>
+        <MovText>true</MovText>
+    </Subtitles>
+
+    <Description>Apple TV 4K (1st gen) DirectPlay profile</Description>
+
+</ClientProfile>

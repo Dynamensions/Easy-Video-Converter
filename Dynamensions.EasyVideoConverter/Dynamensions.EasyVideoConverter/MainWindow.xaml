@@ -1,0 +1,34 @@
+<Window
+    x:Class="Dynamensions.EasyVideoConverter.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Dynamensions.EasyVideoConverter"
+    Title="Dynamensions Easy Video Encoder">
+
+    <NavigationView x:Name="NavView"
+                    PaneTitle="Easy Video Converter"
+                    IsBackButtonVisible="Collapsed"
+                    IsSettingsVisible="False">
+
+        <NavigationView.MenuItems>
+            <!--<NavigationViewItem Content="Home"
+                                Icon="Home"
+                                Tag="MainPage"/>-->
+
+            <NavigationViewItem Content="Queue"
+                                Icon="List"
+                                Tag="QueuePage"/>
+
+            <NavigationViewItem Content="Settings"
+                                Icon="Setting"
+                                Tag="SettingsPage"/>
+
+            <!--<NavigationViewItem Content="Presets"
+                                Icon="Edit"
+                                Tag="PresetsPage"/>-->
+
+        </NavigationView.MenuItems>
+
+        <Frame x:Name="ContentFrame"/>
+    </NavigationView>
+</Window>

@@ -1,0 +1,56 @@
+﻿<ClientProfile name="Chromecast with Google TV (HD)" family="Chromecast" deviceType="StreamingDongle"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="../schema/profile.xsd">
+
+    <DirectPlay>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>hevc</VideoCodec>
+        <VideoCodec>vp9</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <AudioCodec>ac3</AudioCodec>
+        <AudioCodec>eac3</AudioCodec>
+        <Container>mp4</Container>
+        <Container>mkv</Container>
+        <Container>webm</Container>
+    </DirectPlay>
+
+    <DirectStream>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>hevc</VideoCodec>
+        <VideoCodec>vp9</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <AudioCodec>ac3</AudioCodec>
+        <AudioCodec>eac3</AudioCodec>
+        <Container>mkv</Container>
+        <Container>ts</Container>
+    </DirectStream>
+
+    <Preferred>
+        <VideoCodec>hevc</VideoCodec>
+        <AudioCodec>eac3</AudioCodec>
+        <Container>mkv</Container>
+    </Preferred>
+
+    <Limits>
+        <MaxWidth>1920</MaxWidth>
+        <MaxHeight>1080</MaxHeight>
+        <MaxAudioChannels>6</MaxAudioChannels>
+    </Limits>
+
+    <Requirements>
+        <StrictH264>false</StrictH264>
+        <BitDepth>8</BitDepth>
+        <ForceStereoDownmix>false</ForceStereoDownmix>
+    </Requirements>
+
+    <Subtitles>
+        <Internal>true</Internal>
+        <External>true</External>
+        <SRT>true</SRT>
+        <PGS>true</PGS>
+        <MovText>false</MovText>
+    </Subtitles>
+
+    <Description>Chromecast with Google TV HD DirectPlay profile</Description>
+
+</ClientProfile>

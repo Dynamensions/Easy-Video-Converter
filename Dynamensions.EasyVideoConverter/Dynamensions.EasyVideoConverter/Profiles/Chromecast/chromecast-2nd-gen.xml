@@ -1,0 +1,51 @@
+﻿<ClientProfile name="Chromecast 2nd Gen (2015)" family="Chromecast" deviceType="StreamingDongle"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="../schema/profile.xsd">
+
+    <DirectPlay>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>vp9</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <AudioCodec>mp3</AudioCodec>
+        <Container>mp4</Container>
+        <Container>webm</Container>
+        <Container>mkv</Container>
+    </DirectPlay>
+
+    <DirectStream>
+        <VideoCodec>h264</VideoCodec>
+        <VideoCodec>vp9</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <Container>mkv</Container>
+        <Container>ts</Container>
+    </DirectStream>
+
+    <Preferred>
+        <VideoCodec>vp9</VideoCodec>
+        <AudioCodec>aac</AudioCodec>
+        <Container>webm</Container>
+    </Preferred>
+
+    <Limits>
+        <MaxWidth>1920</MaxWidth>
+        <MaxHeight>1080</MaxHeight>
+        <MaxAudioChannels>2</MaxAudioChannels>
+    </Limits>
+
+    <Requirements>
+        <StrictH264>false</StrictH264>
+        <BitDepth>8</BitDepth>
+        <ForceStereoDownmix>true</ForceStereoDownmix>
+    </Requirements>
+
+    <Subtitles>
+        <Internal>false</Internal>
+        <External>true</External>
+        <SRT>true</SRT>
+        <PGS>false</PGS>
+        <MovText>false</MovText>
+    </Subtitles>
+
+    <Description>Chromecast 2nd Gen DirectPlay profile</Description>
+
+</ClientProfile>

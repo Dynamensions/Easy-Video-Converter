@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Dynamensions.EasyVideoConverter.Views.BootstrapPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Dynamensions.EasyVideoConverter.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Dynamensions.EasyVideoConverter.Core.ViewModels"
+    mc:Ignorable="d"
+    Loaded="Page_Loaded"
+    d:DataContext="{d:DesignInstance vm:BootstrapViewModel}">
+
+    <Border BorderBrush="LightGray" BorderThickness="2" Width="500" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="5" Padding="10">
+        <StackPanel Spacing="10">
+            <TextBlock Text="Preparing Applicaiton" FontSize="30" FontWeight="SemiBold" />
+
+            <TextBlock Text="{Binding StatusMessage}"
+                       FontFamily="Cascadia Mono"
+                       TextAlignment="Left"
+                       HorizontalAlignment="Stretch"/>
+
+            <ProgressBar Height="10" Value="{Binding Percent}" Visibility="{Binding IsPercentVisible, Converter={StaticResource BoolToVisibilityConverter}}"  />
+
+            <TextBlock Text="{Binding PercentMessage}"
+                       FontFamily="Cascadia Mono"
+                       TextAlignment="Right" />
+        </StackPanel>
+    </Border>
+</Page>
