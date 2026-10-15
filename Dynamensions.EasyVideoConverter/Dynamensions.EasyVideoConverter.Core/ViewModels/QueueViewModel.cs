@@ -143,10 +143,7 @@ public partial class QueueViewModel : ObservableObject
 
         settingsService.SettingsChanged += () =>
         {
-            foreach (var item in _queue.Items.Where(x => x.IsConverted == false || x.IsRunning == false))
-            {
-                item.Task.OutputPath = GenerateOutputPath(item.File, item.Info, item.Decision);
-            }
+            UpdateDecisionForAllItems();
         };
     }
     #endregion
@@ -208,7 +205,7 @@ public partial class QueueViewModel : ObservableObject
                 item.Status = $"Extracting burn-in subtitle ({currentStep++}/{totalSteps})";
 
                 item.Task.BurnInSubtitlePath =
-                    await _subtitleExtractorService.ExtractForBurnInAsync(item, ProgressCallbackDispatcher);
+                    await _subtitleExtractorService.ExtractForBurnInAsync(item, ProgressCallbackDispatcher, cancellationTokenSource.Token);
             }
 
             // ---------------------------------------------------------
@@ -222,7 +219,8 @@ public partial class QueueViewModel : ObservableObject
                     item,
                     decision.ExternalSubtitles,
                     ProgressCallbackDispatcher,
-                    SubtitleCallback);
+                    SubtitleCallback,
+                    cancellationTokenSource.Token);
             }
 
             // ---------------------------------------------------------
@@ -467,6 +465,8 @@ public partial class QueueViewModel : ObservableObject
             // 6. Estimate encoding time
             var secondsRemaining = _encodeTimeEstimator.EstimatePreEncode(perfKey, item.Info.Duration.TotalSeconds);
             item.EstimatedTimeRemaining = TimeSpan.FromSeconds(secondsRemaining);
+
+            item.Task.OutputPath = GenerateOutputPath(item.File, item.Info, item.Decision);
         }
 
         UpdateEstimatedConversionTime();
@@ -486,8 +486,8 @@ public partial class QueueViewModel : ObservableObject
     {
         var totalSeconds = _queue.Items.Sum(x => x.EstimatedTimeRemaining.TotalSeconds);
         EstimatedTimeRemaining = TimeSpan.FromSeconds(totalSeconds);
-
     }
+
 
     private bool CanStartQueue() => _queue.Items.Any();
 
