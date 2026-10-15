@@ -94,7 +94,11 @@ public sealed partial class MediaFileAnalyzerService(ILogger<MediaFileAnalyzerSe
             LogCancellationRequested(filePath);
             try
             {
-                process.Kill(entireProcessTree: true);
+                if (!process.HasExited && process.Id != 0)
+                {
+                    logger.LogInformation("Cancellation requested, stopping process...");
+                    process.Kill(entireProcessTree: true);
+                }
             }
             catch (Exception ex)
             {

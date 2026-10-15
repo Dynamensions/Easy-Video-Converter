@@ -101,8 +101,19 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
         // Register cancellation callback
         using var registration = queueItem.Cancellation.Token.Register(() =>
         {
-            logger.LogInformation("Cancellation requested, stopping process...");
-            process.Kill(entireProcessTree: true);
+            if (!process.HasExited && process.Id != 0)
+            {
+                try
+                {
+                    logger.LogInformation("Cancellation requested, stopping process...");
+                    process.Kill(entireProcessTree: true);
+
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to kill ffprobe process for {FilePath}. {file}", queueItem.Task.OutputPath, queueItem.Task.OutputFileName);
+                }
+            }
         });
 
         process.Start();

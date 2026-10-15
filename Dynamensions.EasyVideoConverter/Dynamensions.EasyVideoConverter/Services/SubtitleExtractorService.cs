@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Services;
@@ -19,7 +20,8 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
     // ---------------------------------------------------------
     public async Task<string?> ExtractForBurnInAsync(
         QueueItem item,
-        Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback)
+        Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback,
+        CancellationToken cancellationToken)
     {
         LogExtractionMode(logger, "Burn-In");
 
@@ -46,7 +48,7 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
             var supPath = Path.Combine(Path.GetTempPath(), $"{baseName}_burnin.sup");
             var argsSup = $"-i \"{item.Task.File.Path}\" -map 0:s:{sub.FfmpegIndex} \"{supPath}\"";
 
-            await RunFFmpegAsync(argsSup, item, progressCallback);
+            await RunFFmpegAsync(argsSup, item, progressCallback, cancellationToken);
 
             if (!File.Exists(supPath))
             {
@@ -60,7 +62,7 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
         else
         {
             var args = $"-i \"{item.Task.File.Path}\" -map 0:s:{sub.FfmpegIndex} -c:s {codec} \"{tempPath}\"";
-            await RunFFmpegAsync(args, item, progressCallback);
+            await RunFFmpegAsync(args, item, progressCallback, cancellationToken);
         }
 
         ValidateExtraction(tempPath);
@@ -74,7 +76,8 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
         QueueItem item,
         IEnumerable<SubtitleTrack> tracks,
         Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback,
-        Action<(QueueItem item, int CurrentTrack, int TotalTracks, SubtitleTrack subtitleTrack)>? trackCallback)
+        Action<(QueueItem item, int CurrentTrack, int TotalTracks, SubtitleTrack subtitleTrack)>? trackCallback,
+        CancellationToken cancellationToken)
     {
         LogExtractionMode(logger, "External (Batch)");
 
@@ -105,7 +108,7 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
 
             var args = $"-i \"{item.Task.File.Path}\" -map 0:s:{sub.FfmpegIndex} -c:s {codec} \"{output}\"";
 
-            await RunFFmpegAsync(args, item, progressCallback);
+            await RunFFmpegAsync(args, item, progressCallback, cancellationToken);
 
             if (!File.Exists(output) || new FileInfo(output).Length == 0)
                 LogExternalSubtitleFailed(logger, output);
@@ -117,7 +120,8 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
     public async Task ExportAsync(
         QueueItem item,
         SubtitleTrack track,
-        Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback)
+        Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback,
+        CancellationToken cancellationToken)
     {
         LogExtractionMode(logger, "External (Single)");
 
@@ -141,7 +145,7 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
 
         var args = $"-i \"{item.Task.File.Path}\" -map 0:s:{track.FfmpegIndex} -c:s {codec} \"{output}\"";
 
-        await RunFFmpegAsync(args, item, progressCallback);
+        await RunFFmpegAsync(args, item, progressCallback, cancellationToken);
 
         if (!File.Exists(output) || new FileInfo(output).Length == 0)
             LogExternalSubtitleFailed(logger, output);
@@ -155,7 +159,7 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
     private async Task<int> RunFFmpegAsync(
         string args,
         QueueItem item,
-        Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback)
+        Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback, CancellationToken cancellationToken)
     {
         var stopwatch = Stopwatch.StartNew();
         var currentFPS = 0;
@@ -165,13 +169,6 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
 
         string ffmpegPath = Path.Combine(settingsService.FfMpegDirectory, "ffmpeg.exe");
 
-        //string ffmpegPath = "FFmpeg/" + RuntimeInformation.ProcessArchitecture switch
-        //{
-        //    Architecture.X64 => "ffmpeg-x8664.exe",
-        //    Architecture.X86 => "ffmpeg-x8664.exe",
-        //    Architecture.Arm64 => "ffmpeg-arm64.exe",
-        //    _ => throw new PlatformNotSupportedException()
-        //};
 
         var psi = new ProcessStartInfo
         {
@@ -185,9 +182,10 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
 
         LogFfmpegStart(logger, psi.FileName, psi.Arguments);
 
-        using var proc = new Process { StartInfo = psi };
+        using var process = new Process { StartInfo = psi };
 
-        proc.ErrorDataReceived += (s, e) =>
+
+        process.ErrorDataReceived += (s, e) =>
         {
             if (string.IsNullOrWhiteSpace(e.Data))
                 return;
@@ -226,27 +224,38 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
 
         LogCancellationRegistered(logger);
 
-        using var registration = item.Cancellation.Token.Register(() =>
+        using var registration = cancellationToken.Register(() =>
         {
-            LogCancellationRequested(logger);
-            proc.Kill(entireProcessTree: true);
+            try
+            {
+                if (!process.HasExited && process.Id != 0)
+                {
+                    logger.LogInformation("Cancellation requested, stopping process...");
+                    process.Kill(entireProcessTree: true);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to kill ffprobe process for {FilePath}. {file}", item.Task.OutputPath, item.Task.OutputFileName);
+            }
         });
 
-        proc.Start();
-        proc.BeginErrorReadLine();
-        proc.BeginOutputReadLine();
+
+        process.Start();
+        process.BeginErrorReadLine();
+        process.BeginOutputReadLine();
 
         try
         {
-            await proc.WaitForExitAsync(item.Cancellation.Token);
+            await process.WaitForExitAsync(item.Cancellation.Token);
         }
         catch (TaskCanceledException)
         {
             LogSubtitleCancelled(logger);
         }
 
-        LogFfmpegExitCode(logger, proc.ExitCode);
-        return proc.ExitCode;
+        LogFfmpegExitCode(logger, process.ExitCode);
+        return process.ExitCode;
     }
 
     // ---------------------------------------------------------
