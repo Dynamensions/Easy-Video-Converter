@@ -445,7 +445,8 @@ public partial class QueueViewModel : ObservableObject
         var task = BuildTask(mediaFile, info, SelectedEncoderProfile, decision);
 
         // 6. Add to queue
-        _queue.Add(task, conversionSeconds);
+        // zeroing estimate until it can become more accurate.
+        _queue.Add(task, 0);
         UpdateQueueStatistics();
         UpdateEstimatedConversionTime();
     }
