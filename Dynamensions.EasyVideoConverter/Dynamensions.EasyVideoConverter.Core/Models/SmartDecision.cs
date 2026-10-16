@@ -6,6 +6,10 @@ namespace Dynamensions.EasyVideoConverter.Core.Models;
 
 public partial class SmartDecision : ObservableObject
 {
+    public void UpdateFromSmartDecision(SmartDecision smartDecision)
+    {
+        IsDirectPlay = smartDecision.IsDirectPlay;
+    }
 
     // ---------------------------------------------------------
     // DECISION TYPE (Mode)

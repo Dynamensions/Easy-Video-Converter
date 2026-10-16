@@ -403,6 +403,7 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
             info.Width > client.MaxWidth ||
             info.Height > client.MaxHeight;
 
+
         d.TargetWidth = client.MaxWidth;
         d.TargetHeight = client.MaxHeight;
 
