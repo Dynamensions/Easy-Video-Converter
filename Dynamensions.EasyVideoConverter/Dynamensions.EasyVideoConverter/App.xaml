@@ -23,7 +23,8 @@
             <converters:DoubleToCurrentFpsStringConverter x:Key="DoubleToCurrentFpsStringConverter"/>
             <converters:DoubleToSpeedXStringConverter x:Key="DoubleToSpeedXStringConverter"/>
 
-
+            <converters:DoubleToProgressConverter x:Key="DoubleToProgressConverter" />
+            
             <Style x:Key="BadgeStyle" TargetType="Border">
                 <Setter Property="Padding" Value="6,2"/>
                 <Setter Property="CornerRadius" Value="4"/>

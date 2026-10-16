@@ -10,8 +10,6 @@ public partial class QueueItem : ObservableObject
     public required MediaFile File { get; set; }
     public required MediaInfo Info { get; set; }
     public required EncoderProfile ServerProfile { get; set; }
-    public required SmartDecision Decision { get; set; }
-
     public required TranscodeTask Task { get; set; }
 
     public Process? FfmpegProcess { get; set; }
