@@ -368,6 +368,10 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
         }
 
 
+        // Clamp audo bitrate to safe levels.
+        ClampBitRate(client, info, d);
+
+
         // Video output format
         d.SelectedVideoCodec = client.PreferredVideoCodec;
         d.SelectedHardwareEncoder = ChooseHardwareEncoder(encoder, d);
@@ -470,6 +474,38 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
         // Stereo fallback
         return client.PreferredAudioCodec;
     }
+
+    private static void ClampBitRate(ClientProfile client, MediaInfo info, SmartDecision d)
+    {
+        int sourceKbps = (int)(info.AudioBitrate / 1000);
+
+        // ---------------------------------------------------------
+        // AUDIO BITRATE CLAMP (Roku-safe)
+        // ---------------------------------------------------------
+        if (d.SelectedAudioCodec == "aac")
+        {
+            // Roku supports AAC only up to 256 kbps
+            if (sourceKbps > 256)
+                d.TargetAudioBitrateKbps = 192;   // safe fallback
+            else
+                d.TargetAudioBitrateKbps = sourceKbps;
+
+            d.Reasons.Add($"AAC bitrate clamped to {d.TargetAudioBitrateKbps} Kbps for Roku compatibility.");
+        }
+        else if (d.SelectedAudioCodec == "ac3")
+        {
+            // AC3 max is 640 kbps
+            d.TargetAudioBitrateKbps = Math.Min(sourceKbps, 640);
+            d.Reasons.Add($"AC3 bitrate capped at {d.TargetAudioBitrateKbps} Kbps.");
+        }
+        else if (d.SelectedAudioCodec == "eac3")
+        {
+            // EAC3 max is 768 kbps
+            d.TargetAudioBitrateKbps = Math.Min(sourceKbps, 768);
+            d.Reasons.Add($"EAC3 bitrate capped at {d.TargetAudioBitrateKbps} Kbps.");
+        }
+    }
+
 
     // ---------------------------------------------------------
     // VIDEO ENCODER SELECTION

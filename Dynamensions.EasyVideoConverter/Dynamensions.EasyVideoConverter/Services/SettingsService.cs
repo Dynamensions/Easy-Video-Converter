@@ -61,7 +61,7 @@ public sealed partial class SettingsService : ISettingsService
         try
         {
             var json = File.ReadAllText(settingsPath);
-            Settings = JsonSerializer.Deserialize(
+            Settings = JsonSerializer.Deserialize<AppSettings>(
                 json,
                 EncoderProfileJsonContext.Default.AppSettings
             ) ?? new AppSettings();
@@ -87,7 +87,7 @@ public sealed partial class SettingsService : ISettingsService
 
         try
         {
-            var json = JsonSerializer.Serialize(
+            var json = JsonSerializer.Serialize<AppSettings>(
                 Settings,
                 EncoderProfileJsonContext.Default.AppSettings
             );
