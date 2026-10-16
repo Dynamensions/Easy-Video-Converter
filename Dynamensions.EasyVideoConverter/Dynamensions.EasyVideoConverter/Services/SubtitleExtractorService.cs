@@ -254,6 +254,8 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
             LogSubtitleCancelled(logger);
         }
 
+        progressCallback?.Invoke((item, 1, currentFPS, currentSpeedX, 0));
+
         LogFfmpegExitCode(logger, process.ExitCode);
         return process.ExitCode;
     }
