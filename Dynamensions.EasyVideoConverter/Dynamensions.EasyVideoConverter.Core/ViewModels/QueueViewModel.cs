@@ -141,6 +141,8 @@ public partial class QueueViewModel : ObservableObject
             ??
             ClientProfiles.SelectMany(x => x.Profiles).First();
 
+        IsProfileSelectionEnabled = true;
+
         settingsService.SettingsChanged += () =>
         {
             UpdateDecisionForAllItems();
@@ -410,7 +412,6 @@ public partial class QueueViewModel : ObservableObject
             _settingsService.Settings.SelectedClientProfileName = value?.Name ?? "Roku";
             _settingsService.Save();
         }
-        UpdateDecisionForAllItems();
     }
     partial void OnSelectedEncoderProfileChanged(EncoderProfile value)
     {
@@ -419,7 +420,6 @@ public partial class QueueViewModel : ObservableObject
             _settingsService.Settings.SelectedEncoderProfileName = value?.Name ?? "CPU";
             _settingsService.Save();
         }
-        UpdateDecisionForAllItems();
     }
 
     private async Task AddFileToQueueAsync(string filePath, long size)
@@ -457,17 +457,17 @@ public partial class QueueViewModel : ObservableObject
 
         foreach (var item in _queue.Items.Where(x => x.IsConverted == false || x.IsRunning == false))
         {
-            _smartDecisionService.Decide(SelectedEncoderProfile, SelectedClientProfile, item.Info, item.Decision);
+            _smartDecisionService.Decide(SelectedEncoderProfile, SelectedClientProfile, item.Info, item.Task.Decision);
 
             // estimate conversion time
             // 5. Build temporary PerformanceKey for estimation
-            var perfKey = EncodeTimeEstimator.CreatePerformanceKey(item.Info, item.Decision);
+            var perfKey = EncodeTimeEstimator.CreatePerformanceKey(item.Info, item.Task.Decision);
 
             // 6. Estimate encoding time
             var secondsRemaining = _encodeTimeEstimator.EstimatePreEncode(perfKey, item.Info.Duration.TotalSeconds);
             item.EstimatedTimeRemaining = TimeSpan.FromSeconds(secondsRemaining);
 
-            item.Task.OutputPath = GenerateOutputPath(item.File, item.Info, item.Decision);
+            item.Task.OutputPath = GenerateOutputPath(item.File, item.Info, item.Task.Decision);
         }
 
         UpdateEstimatedConversionTime();

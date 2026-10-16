@@ -29,7 +29,7 @@ public class TranscodeQueueService : ITranscodeQueueService
             File = transcodeTask.File,
             Info = transcodeTask.Info,
             ServerProfile = transcodeTask.Server,
-            Decision = transcodeTask.Decision,
+            //Decision = transcodeTask.Decision,
             Status = "Pending",
             Progress = 0,
             EstimatedTimeRemaining = TimeSpan.FromSeconds(estimatedConversionSeconds),

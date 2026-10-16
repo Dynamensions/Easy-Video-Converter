@@ -34,7 +34,7 @@ public sealed partial class MediaFileAnalyzerService(ILogger<MediaFileAnalyzerSe
         FfprobeRoot? root;
         try
         {
-            root = JsonSerializer.Deserialize(
+            root = JsonSerializer.Deserialize<FfprobeRoot>(
                 json,
                 EncoderProfileJsonContext.Default.FfprobeRoot
             );
@@ -253,7 +253,9 @@ public sealed partial class MediaFileAnalyzerService(ILogger<MediaFileAnalyzerSe
             Codec = a.CodecName ?? "unknown",
             IsAacLc = (a.CodecName == "aac" &&
                        (a.Profile?.Equals("LC", StringComparison.OrdinalIgnoreCase) ?? false)),
-            BitRate = ParseLong(a.BitRate),
+            
+            // bitrate may be on the tag.
+            BitRate = a.BitRate != null ? ParseLong(a.BitRate) : ParseLong(a.Tags.BPS),
             Channels = a.Channels,
             Language = a.Tags?.Language ?? "und",
             Title = a.Tags?.Title

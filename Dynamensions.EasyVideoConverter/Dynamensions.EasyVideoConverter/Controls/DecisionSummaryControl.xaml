@@ -19,19 +19,19 @@
             <!-- VIDEO -->
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Glyph="&#xE714;" FontSize="16" Foreground="{x:Bind Decision.VideoColor, Converter={StaticResource UniversalColorToBrushConverter}}"/>
-                <TextBlock Text="{x:Bind Decision.VideoSummary}" FontSize="14"/>
+                <TextBlock Text="{x:Bind Decision.VideoSummary, Mode=OneWay}" FontSize="14"/>
             </StackPanel>
 
             <!-- RESOLUTION / SCALING -->
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Glyph="&#xE7F4;" FontSize="16" Foreground="{x:Bind Decision.ResolutionAndScalingColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
-                <TextBlock Text="{x:Bind Decision.ResolutionAndScalingSummary}" FontSize="14"/>
+                <TextBlock Text="{x:Bind Decision.ResolutionAndScalingSummary, Mode=OneWay}" FontSize="14"/>
             </StackPanel>
 
             <!-- SAR -->
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Glyph="&#xE8D4;" FontSize="16" Foreground="{x:Bind Decision.SarColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
-                <TextBlock Text="{x:Bind Decision.SarSummary}" FontSize="14"/>
+                <TextBlock Text="{x:Bind Decision.SarSummary, Mode=OneWay}" FontSize="14"/>
             </StackPanel>
 
         </StackPanel>
@@ -42,19 +42,19 @@
             <!-- AUDIO -->
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Glyph="&#xE15D;" FontSize="16" Foreground="{x:Bind Decision.AudioColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
-                <TextBlock Text="{x:Bind Decision.AudioSummary}" FontSize="14"/>
+                <TextBlock Text="{x:Bind Decision.AudioSummary, Mode=OneWay}" FontSize="14"/>
             </StackPanel>
 
             <!-- SUBTITLES -->
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Glyph="&#xE8F2;" FontSize="16" Foreground="{x:Bind Decision.SubtitleColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
-                <TextBlock Text="{x:Bind Decision.SubtitleSummary}" FontSize="14"/>
+                <TextBlock Text="{x:Bind Decision.SubtitleSummary, Mode=OneWay}" FontSize="14"/>
             </StackPanel>
 
             <!-- CONTAINER -->
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Glyph="&#xE7C3;" FontSize="16" Foreground="{x:Bind Decision.ContainerColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
-                <TextBlock Text="{x:Bind Decision.ContainerSummary}" FontSize="14" />
+                <TextBlock Text="{x:Bind Decision.ContainerSummary, Mode=OneWay}" FontSize="14" />
             </StackPanel>
 
         </StackPanel>
