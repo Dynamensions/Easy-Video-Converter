@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Dynamensions.EasyVideoConverter.Core.Models;
+﻿namespace Dynamensions.EasyVideoConverter.Core.Models;
 
 public class AudioTrack
 {
@@ -14,7 +12,7 @@ public class AudioTrack
     // BASIC METADATA
     // ---------------------------------------------------------
     public string Codec { get; set; } = "unknown";
-    public int Channels { get; set; }
+    public int? Channels { get; set; }
     public long BitRate { get; set; }
 
     public string Language { get; set; } = "und";

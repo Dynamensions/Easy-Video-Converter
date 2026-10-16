@@ -141,6 +141,8 @@ public partial class QueueViewModel : ObservableObject
             ??
             ClientProfiles.SelectMany(x => x.Profiles).First();
 
+        IsProfileSelectionEnabled = true;
+
         settingsService.SettingsChanged += () =>
         {
             UpdateDecisionForAllItems();
@@ -410,7 +412,6 @@ public partial class QueueViewModel : ObservableObject
             _settingsService.Settings.SelectedClientProfileName = value?.Name ?? "Roku";
             _settingsService.Save();
         }
-        UpdateDecisionForAllItems();
     }
     partial void OnSelectedEncoderProfileChanged(EncoderProfile value)
     {
@@ -419,7 +420,6 @@ public partial class QueueViewModel : ObservableObject
             _settingsService.Settings.SelectedEncoderProfileName = value?.Name ?? "CPU";
             _settingsService.Save();
         }
-        UpdateDecisionForAllItems();
     }
 
     private async Task AddFileToQueueAsync(string filePath, long size)
