@@ -136,7 +136,7 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
         // ---------------------------------------------------------
 
         if (!String.IsNullOrWhiteSpace(burnSubPath) && File.Exists(burnSubPath)) File.Delete(burnSubPath);
-        progressCallback?.Invoke((queueItem, 100, currentFPS, currentSpeedX, 0));
+        progressCallback?.Invoke((queueItem, 1, currentFPS, currentSpeedX, 0));
 
         stopwatch.Stop();
         encodeTimeEstimator.RecordJob(task.PerformanceKey, task.Info.Duration.TotalSeconds, stopwatch.Elapsed.TotalSeconds);

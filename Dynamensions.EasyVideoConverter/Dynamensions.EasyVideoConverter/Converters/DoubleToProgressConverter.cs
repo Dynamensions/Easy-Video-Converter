@@ -11,9 +11,11 @@ public partial class DoubleToProgressConverter : IValueConverter
         if (value is not double d || double.IsNaN(d) || d <= 0)
             return "—";
 
+        d *= 0.01;
+
         // percent comes in as a double above 1.
         // divide it by 100 so progrewss displays cleanly.
-        return (d / 100).ToString("P2");
+        return (d).ToString("P2");
 
     }
 
