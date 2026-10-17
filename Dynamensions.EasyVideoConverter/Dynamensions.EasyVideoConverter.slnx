@@ -12,7 +12,7 @@
   <Project Path="Dynamensions.EasyVideoConverter.Tests/Dynamensions.EasyVideoConverter.Tests.csproj" Id="1dc9b1a2-ec30-403d-81c2-de1c7762d7ac">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x86" Project="x86" />
-    <Platform Solution="Debug|x64" Project="x64" />
+    <Platform Solution="*|x64" Project="x64" />
   </Project>
   <Project Path="Dynamensions.EasyVideoConverter/Dynamensions.EasyVideoConverter.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />
