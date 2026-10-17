@@ -8,23 +8,36 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:Dynamensions.EasyVideoConverter.Core.ViewModels"
     mc:Ignorable="d"
-    Loaded="Page_Loaded"
     d:DataContext="{d:DesignInstance vm:BootstrapViewModel}">
+   
+    
+    <Border BorderBrush="LightGray" BorderThickness="2" Width="500" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="5" Padding="10">
+        <StackPanel>
+            <StackPanel Spacing="20" Visibility="{Binding IsConfirmingPrepare, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="Missing Application Dependencies" FontSize="30" FontWeight="SemiBold" />
+                <TextBlock FontSize="16" TextWrapping="WrapWholeWords">There are dependencies that need to be downloaded before you can use this application.</TextBlock>
+                
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Button Command="{Binding PrepareApplicationCommand}" Style="{StaticResource AccentButtonStyle}">Download Application Dependencies</Button>
+                    <Button Command="{Binding CancelCommand}" Style="{StaticResource ButtonRevealStyle}">Cancel And Close Application</Button>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Spacing="10" Visibility="{Binding IsConfirmingPrepare, Converter={StaticResource BoolToVisibilityInvertedConverter}}">
 
-    <Border BorderBrush="LightGray" BorderThickness="2" Width="500" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="5" Padding="10">
-        <StackPanel Spacing="10">
-            <TextBlock Text="Preparing Applicaiton" FontSize="30" FontWeight="SemiBold" />
+                <TextBlock Text="Preparing Application" FontSize="30" FontWeight="SemiBold" />
 
-            <TextBlock Text="{Binding StatusMessage}"
-                       FontFamily="Cascadia Mono"
-                       TextAlignment="Left"
-                       HorizontalAlignment="Stretch"/>
+                <TextBlock Text="{Binding StatusMessage}"
+                           FontSize="10"
+                           FontFamily="Cascadia Mono"
+                           TextAlignment="Left"
+                           HorizontalAlignment="Stretch"/>
 
-            <ProgressBar Height="10" Value="{Binding Percent}" Visibility="{Binding IsPercentVisible, Converter={StaticResource BoolToVisibilityConverter}}"  />
+                <ProgressBar Height="10" Value="{Binding Percent}" Visibility="{Binding IsPercentVisible, Converter={StaticResource BoolToVisibilityConverter}}"  />
 
-            <TextBlock Text="{Binding PercentMessage}"
+                <TextBlock Text="{Binding PercentMessage}"
                        FontFamily="Cascadia Mono"
                        TextAlignment="Right" />
+            </StackPanel>
         </StackPanel>
     </Border>
 </Page>

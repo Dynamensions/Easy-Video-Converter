@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.Messaging;
+using Dynamensions.EasyVideoConverter.Core.Messages;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Dynamensions.EasyVideoConverter.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,15 +37,19 @@ public sealed partial class MainWindow : Window
             appWindow.SetIcon(iconPath);
         }
 
+        // subscribe to the message bus
+        WeakReferenceMessenger.Default.Register<ApplicationPrepareCompleteMessage>(this, (reciever, message) =>
+        {
+            if (message.isSuccessful)
+            {
+                NavView.IsPaneVisible = true;
+                ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<QueuePage>().GetType());
+            }
+        });
+
 
         NavView.SelectionChanged += OnNavigationChanged;
 
-        // hook the events.
-        ((App)App.Current).BootstrapComplete += (e) =>
-        {
-            NavView.IsPaneVisible = true;
-            ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<QueuePage>().GetType());
-        };
 
         var ffmpegService = App.AppHost.Services.GetRequiredService<IFfmpegBootstrapService>();
         var isValidated = ffmpegService.Verify();

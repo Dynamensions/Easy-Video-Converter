@@ -1,5 +1,6 @@
 ﻿using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Services;
+using Microsoft.Extensions.Logging;
 using SharpCompress.Archives;
 using SharpCompress.Common;
 using System;
@@ -25,19 +26,22 @@ public class FfmpegBootstrapService : IFfmpegBootstrapService
     // where the binaries are stored.
     private readonly string _ffmpegDir;
     private bool _initialized;
+    private readonly ILogger _logger;
 
     public bool IsInitialized => _initialized;
+
 
     /// <summary>
     /// Initializes a new <see cref="FfmpegBootstrapService"/>
     /// </summary>
     /// <param name="settingsService">The <see cref="ISettingsService"/></param>
-    public FfmpegBootstrapService(ISettingsService settingsService)
+    public FfmpegBootstrapService(ISettingsService settingsService, ILogger<FfmpegBootstrapService> logger)
     {
         // set the ffmpeg directory. This is stored as a read-only string in the settings service.
         _ffmpegDir = settingsService.FfMpegDirectory;
         // create the directory if it doesn't exist.
         Directory.CreateDirectory(settingsService.FfMpegDirectory);
+        _logger = logger;
     }
 
     public bool Verify()
@@ -50,34 +54,47 @@ public class FfmpegBootstrapService : IFfmpegBootstrapService
         return ffmpegExists && ffprobeExists;
     }
 
-    public async Task InitializeAsync(IProgress<PrepareProgress> progress, CancellationToken cancellationToken)
+    public async Task PrepareDependenciesAsync(IProgress<PrepareProgress> progress, CancellationToken cancellationToken)
     {
-        // a gate in case this method is called more than once.
-        if (_initialized) return;
+        try
+        {
+            // a gate in case this method is called more than once.
+            if (_initialized) return;
 
-        // probably redundant, but the call is not expensive so keep it.
-        Verify();
+            // probably redundant, but the call is not expensive so keep it.
+            Verify();
 
-        // one is missing. re-download...
-        var archivePath = Path.Combine(_ffmpegDir, "ffmpeg.7z");
+            // one is missing. re-download...
+            var archivePath = Path.Combine(_ffmpegDir, "ffmpeg.7z");
 
-        // configure the url according to OS architecture
-        var ffmpegUrl = GetFfmpegDownloadUrl();
+            // configure the url according to OS architecture
+            var ffmpegUrl = GetFfmpegDownloadUrl();
 
+            // download the dependencies
+            await DownloadWithProgressAsync("Downloading FFMPEG", ffmpegUrl, archivePath, progress, cancellationToken);
+            // add more as needed.
 
-        await DownloadWithProgressAsync("Downloading FFMPEG", ffmpegUrl, archivePath, progress, cancellationToken);
-        await ExtractWithProgressAsync(archivePath, progress, cancellationToken);
-        MoveFiles(progress, cancellationToken);
-        Cleanup(archivePath, progress, cancellationToken);
+            // extract the dependencies 
+            await ExtractWithProgressAsync(archivePath, progress, cancellationToken);
+            // add more as needed.
 
-        progress.Report(new PrepareProgress("Complete", false));
+            // move the files needed by the app to the root.
+            MoveFiles(progress, cancellationToken);
+            // clean up the root
+            Cleanup(archivePath, progress, cancellationToken);
+            // report the progress is complete.
+            progress.Report(new PrepareProgress("Complete", false));
 
-        ValidateCoreDependancies();
+            ValidateCoreDependancies();
 
-        _initialized = true;
+            _initialized = true;
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "There was an error preparing the application.");
+        }
     }
-
-    public string GetFfmpegPath() => _ffmpegDir;
 
     /// <summary>
     /// Gets the url according to the <see cref="RuntimeInformation.ProcessArchitecture"/>
@@ -274,5 +291,10 @@ public class FfmpegBootstrapService : IFfmpegBootstrapService
         return $"{len:0.0} {sizes[order]}";
     }
 
+    public Task ExitAppAsync()
+    {
+        App.Current.Exit();
+        return Task.CompletedTask;
+    }
 
 }
