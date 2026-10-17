@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="Dynamensions.EasyVideoConverter.Views.BootstrapPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -9,35 +8,108 @@
     xmlns:vm="using:Dynamensions.EasyVideoConverter.Core.ViewModels"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance vm:BootstrapViewModel}">
-   
-    
-    <Border BorderBrush="LightGray" BorderThickness="2" Width="500" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="5" Padding="10">
-        <StackPanel>
-            <StackPanel Spacing="20" Visibility="{Binding IsConfirmingPrepare, Converter={StaticResource BoolToVisibilityConverter}}">
-                <TextBlock Text="Missing Application Dependencies" FontSize="30" FontWeight="SemiBold" />
-                <TextBlock FontSize="16" TextWrapping="WrapWholeWords">There are dependencies that need to be downloaded before you can use this application.</TextBlock>
-                
-                <StackPanel Orientation="Horizontal" Spacing="10">
-                    <Button Command="{Binding PrepareApplicationCommand}" Style="{StaticResource AccentButtonStyle}">Download Application Dependencies</Button>
-                    <Button Command="{Binding CancelCommand}" Style="{StaticResource ButtonRevealStyle}">Cancel And Close Application</Button>
+
+    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
+        <Grid CornerRadius="12"
+          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+          Padding="36"
+          HorizontalAlignment="Center"
+          VerticalAlignment="Center"
+          Translation="0,0,32">
+
+            <Grid.Shadow>
+                <ThemeShadow/>
+            </Grid.Shadow>
+
+            <StackPanel Spacing="32">
+
+                <!-- Header -->
+                <StackPanel Spacing="12" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE9F5;" FontSize="48"
+                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                    <TextBlock Text="EasyVideoConverter Setup"
+                               FontSize="28"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"/>
                 </StackPanel>
+
+                <!-- Confirm Dependencies -->
+                <StackPanel Spacing="20"
+                            Visibility="{Binding IsConfirmingPrepare, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                    <TextBlock Text="Missing Application Dependencies"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"/>
+
+                    <TextBlock FontSize="14"
+                               TextWrapping="WrapWholeWords"
+                               TextAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                        Before you can use EasyVideoConverter, required components must be downloaded.
+                    </TextBlock>
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Button Command="{Binding PrepareApplicationCommand}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Content="Download Dependencies"
+                                HorizontalAlignment="Center"
+                                Width="200"
+                                MinHeight="40"/>
+
+                        <Button Command="{Binding CancelCommand}"
+                                Style="{StaticResource ButtonRevealStyle}"
+                                Content="Cancel and Exit"
+                                Width="200"
+                                HorizontalAlignment="Center"
+                                Grid.Column="1"
+                                MinHeight="40"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Preparing -->
+                <StackPanel Spacing="20" Width="600"
+                            Visibility="{Binding IsConfirmingPrepare, Converter={StaticResource BoolToVisibilityInvertedConverter}}">
+
+                    <TextBlock Text="Preparing Application"
+                               FontSize="22"
+                               FontWeight="SemiBold"/>
+
+                    <Border Background="{ThemeResource SubtleFillColorTransparentBrush}"
+                            Padding="12"
+                            CornerRadius="6">
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   FontFamily="Cascadia Mono"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </Border>
+
+                    <Rectangle Height="1"
+                               Fill="{ThemeResource CardStrokeColorDefaultBrush}"
+                               Margin="0,8,0,0"/>
+                    
+                    <ProgressBar Height="10"
+                                 Value="{Binding Percent}"
+                                 Visibility="{Binding IsPercentVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <TextBlock Text="{Binding PercentMessage}"
+                               FontFamily="Cascadia Mono"
+                               FontSize="12"
+                               TextAlignment="Right"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+
             </StackPanel>
-            <StackPanel Spacing="10" Visibility="{Binding IsConfirmingPrepare, Converter={StaticResource BoolToVisibilityInvertedConverter}}">
+        </Grid>
+    </Grid>
 
-                <TextBlock Text="Preparing Application" FontSize="30" FontWeight="SemiBold" />
-
-                <TextBlock Text="{Binding StatusMessage}"
-                           FontSize="10"
-                           FontFamily="Cascadia Mono"
-                           TextAlignment="Left"
-                           HorizontalAlignment="Stretch"/>
-
-                <ProgressBar Height="10" Value="{Binding Percent}" Visibility="{Binding IsPercentVisible, Converter={StaticResource BoolToVisibilityConverter}}"  />
-
-                <TextBlock Text="{Binding PercentMessage}"
-                       FontFamily="Cascadia Mono"
-                       TextAlignment="Right" />
-            </StackPanel>
-        </StackPanel>
-    </Border>
 </Page>
