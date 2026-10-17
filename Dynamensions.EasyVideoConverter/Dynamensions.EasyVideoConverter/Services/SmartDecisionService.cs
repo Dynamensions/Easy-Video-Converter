@@ -73,12 +73,16 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
             d.SelectedSubtitle != null ||
             (d.ExternalSubtitles != null && d.ExternalSubtitles.Count != 0);
 
-        if (!hasAnySubtitle)
+        if (info.Subtitles.Count == 0)
+        {
+            d.Reasons.Add("No subtitles available in source.");
+        }
+        else if (!hasAnySubtitle)
         {
             d.SubtitleHandling = SubtitleMode.None;
             d.RequiresBurnIn = false;
             d.SubtitlesForceTranscode = false;
-            d.Reasons.Add("No subtitles selected.");
+            d.Reasons.Add("No valid subtitles selected.");
         }
         else
         {
@@ -273,68 +277,68 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
         // ---------------------------------------------------------
         // DIRECT PLAY
         // ---------------------------------------------------------
-        if (client.CanDirectPlay(info) && !d.SubtitlesForceTranscode && !d.RequiresAudioEncode)
-        {
-            d.IsDirectPlay = true;
-            d.IsDirectStream = false;
-            d.RequiresVideoEncode = false;
-            d.RequiresAudioEncode = false;
+        //if (client.CanDirectPlay(info) && !d.SubtitlesForceTranscode && !d.RequiresAudioEncode)
+        //{
+        //    d.IsDirectPlay = true;
+        //    d.IsDirectStream = false;
+        //    d.RequiresVideoEncode = false;
+        //    d.RequiresAudioEncode = false;
 
-            d.SelectedVideoCodec = info.VideoCodec;
-            d.SelectedAudioCodec = info.PrimaryAudioCodec;
-            d.TargetContainer = info.NormalizedContainer;
+        //    d.SelectedVideoCodec = info.VideoCodec;
+        //    d.SelectedAudioCodec = info.PrimaryAudioCodec;
+        //    d.TargetContainer = info.NormalizedContainer;
 
-            d.SelectedHardwareEncoder = d.SelectedVideoCodec;
-            d.Reasons.Add("Direct Play allowed.");
-            SmartDecisionLog.DirectPlayAllowed(logger);
-            return d;
-        }
+        //    d.SelectedHardwareEncoder = d.SelectedVideoCodec;
+        //    d.Reasons.Add("Direct Play allowed.");
+        //    SmartDecisionLog.DirectPlayAllowed(logger);
+        //    return d;
+        //}
 
         // ---------------------------------------------------------
         // DIRECT STREAM
         // ---------------------------------------------------------
-        if (client.CanDirectStream(info) && !d.SubtitlesForceTranscode)
-        {
-            d.IsDirectPlay = false;
-            d.IsDirectStream = true;
-            d.RequiresVideoEncode = false;
+        //if (client.CanDirectStream(info) && !d.SubtitlesForceTranscode)
+        //{
+        //    d.IsDirectPlay = false;
+        //    d.IsDirectStream = true;
+        //    d.RequiresVideoEncode = false;
 
-            d.RequiresAudioEncode = !codecSupported || !channelsSupported;
+        //    d.RequiresAudioEncode = !codecSupported || !channelsSupported;
 
-            if (!d.RequiresAudioEncode)
-            {
-                d.SelectedAudioCodec = info.PrimaryAudioCodec;
-                SmartDecisionLog.DirectStreamAudioPassthrough(logger);
-            }
-            else
-            {
-                d.SelectedAudioCodec = ChooseAudioCodec(client, info);
-                d.Reasons.Add($"Audio transcoding required → selected {d.SelectedAudioCodec}.");
-                SmartDecisionLog.DirectStreamAudioTranscode(logger);
-            }
+        //    if (!d.RequiresAudioEncode)
+        //    {
+        //        d.SelectedAudioCodec = info.PrimaryAudioCodec;
+        //        SmartDecisionLog.DirectStreamAudioPassthrough(logger);
+        //    }
+        //    else
+        //    {
+        //        d.SelectedAudioCodec = ChooseAudioCodec(client, info);
+        //        d.Reasons.Add($"Audio transcoding required → selected {d.SelectedAudioCodec}.");
+        //        SmartDecisionLog.DirectStreamAudioTranscode(logger);
+        //    }
 
-            // Decide target audio channels
-            if (d.AudioDownmixToStereo)
-            {
-                d.TargetAudioChannels = 2;
-                d.Reasons.Add("Target audio channels set to 2 (downmix).");
-                SmartDecisionLog.DirectStreamDownmixStereo(logger);
-            }
-            else
-            {
-                d.TargetAudioChannels = Math.Min(info.AudioChannels, client.MaxAudioChannels);
-                d.Reasons.Add($"Target audio channels set to {d.TargetAudioChannels}.");
-                SmartDecisionLog.DirectStreamTargetChannels(logger);
-            }
+        //    // Decide target audio channels
+        //    if (d.AudioDownmixToStereo)
+        //    {
+        //        d.TargetAudioChannels = 2;
+        //        d.Reasons.Add("Target audio channels set to 2 (downmix).");
+        //        SmartDecisionLog.DirectStreamDownmixStereo(logger);
+        //    }
+        //    else
+        //    {
+        //        d.TargetAudioChannels = Math.Min(info.AudioChannels, client.MaxAudioChannels);
+        //        d.Reasons.Add($"Target audio channels set to {d.TargetAudioChannels}.");
+        //        SmartDecisionLog.DirectStreamTargetChannels(logger);
+        //    }
 
-            d.SelectedVideoCodec = info.VideoCodec;
-            d.TargetContainer = client.PreferredContainer;
+        //    d.SelectedVideoCodec = info.VideoCodec;
+        //    d.TargetContainer = client.PreferredContainer;
 
-            d.SelectedHardwareEncoder = d.SelectedVideoCodec;
-            d.Reasons.Add("Direct Stream allowed.");
-            SmartDecisionLog.DirectStreamAllowed(logger);
-            return d;
-        }
+        //    d.SelectedHardwareEncoder = d.SelectedVideoCodec;
+        //    d.Reasons.Add("Direct Stream allowed.");
+        //    SmartDecisionLog.DirectStreamAllowed(logger);
+        //    return d;
+        //}
 
         // ---------------------------------------------------------
         // FULL TRANSCODE
@@ -368,7 +372,7 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
         }
 
 
-        // Clamp audo bitrate to safe levels.
+        // Clamp audio bit rate to safe levels.
         ClampBitRate(client, info, d);
 
 
@@ -389,15 +393,16 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
         SmartDecisionLog.TranscodeEncoderSelected(logger);
 
         // Strict H.264 compliance
-        if (client.RequiresStrictH264Compliance && d.SelectedVideoCodec == "h264")
-        {
-            d.TargetProfile = client.RequiredProfile;
-            d.TargetLevel = client.RequiredLevel;
-            d.Reasons.Add($"Strict H.264 compliance required → profile={d.TargetProfile}, level={d.TargetLevel}.");
-            SmartDecisionLog.StrictH264Compliance(logger);
-        }
+        ApplyStrictH264Compliance(client, info, d, logger);
 
+        // bit depth
         d.TargetBitDepth = client.Requires8Bit ? 8 : info.BitDepth;
+        if (d.TargetBitDepth > 8)
+        {
+            // bit depth must be clamped to 8 bit, otherwise server transcode will happen. 
+            d.Reasons.Add("Source is >8‑bit (Hi10P) → DirectPlay requires 8‑bit.");
+            d.TargetBitDepth = 8;
+        }
         d.TargetContainer = client.PreferredContainer;
 
         // ---------------------------------------------------------
@@ -408,8 +413,16 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
             info.Height > client.MaxHeight;
 
         // output video should not exceed input video.
-        //d.TargetWidth = Math.Min(client.MaxWidth, info.Width);
-        //d.TargetHeight = Math.Min(client.MaxHeight, info.Height);
+        if (settingsService.Settings.UpscaleVideo)
+        {
+            d.TargetWidth = client.MaxWidth;
+            d.TargetHeight = client.MaxHeight;
+        }
+        else
+        {
+            d.TargetWidth = Math.Min(client.MaxWidth, info.Width);
+            d.TargetHeight = Math.Min(client.MaxHeight, info.Height);
+        }
 
         if (d.RequiresScaling)
         {
@@ -507,6 +520,39 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
         }
     }
 
+    private static void ApplyStrictH264Compliance(ClientProfile client, MediaInfo info, SmartDecision d, ILogger logger)
+    {
+        if (client.RequiresStrictH264Compliance && d.SelectedVideoCodec == "h264")
+        {
+            // Reject unsupported bit depth (Hi10P, Hi422P, Hi444P)
+            if (info.BitDepth > 8)
+            {
+                d.RequiresVideoEncode = true;
+                d.TargetBitDepth = 8;
+                d.Reasons.Add("Source is >8‑bit (Hi10P) → strict H.264 compliance requires 8‑bit.");
+            }
+
+            // Reject unsupported profiles
+            if (!string.Equals(info.H264Profile, client.RequiredProfile, StringComparison.OrdinalIgnoreCase))
+            {
+                d.RequiresVideoEncode = true;
+                d.TargetProfile = client.RequiredProfile;
+                d.Reasons.Add($"Source H.264 profile '{info.H264Profile}' is not allowed → forcing '{client.RequiredProfile}'.");
+            }
+
+            // Reject unsupported levels
+            string? detectedLevel = info.H264Level?.ToString("0.0");
+            if (detectedLevel != client.RequiredLevel)
+            {
+                d.RequiresVideoEncode = true;
+                d.TargetLevel = client.RequiredLevel;
+                d.Reasons.Add($"Source H.264 level '{detectedLevel}' is not allowed → forcing '{client.RequiredLevel}'.");
+            }
+
+            SmartDecisionLog.StrictH264Compliance(logger);
+        }
+    }
+
 
     // ---------------------------------------------------------
     // VIDEO ENCODER SELECTION
@@ -539,7 +585,6 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
 
         return d.SelectedVideoCodec;
     }
-
 
     private void ComputeOutputHdrFlags(MediaInfo info, SmartDecision d)
     {
