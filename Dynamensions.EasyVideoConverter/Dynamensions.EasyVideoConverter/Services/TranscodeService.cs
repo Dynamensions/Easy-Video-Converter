@@ -155,38 +155,48 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
         sb.Append("-y ");
 
         //
-        // Hardware acceleration (NVENC / AMF / QSV)
+        // ---------------------------------------------------------
+        // INPUT OPTIONS (must be BEFORE -i)
+        // ---------------------------------------------------------
         //
         if (d.SelectedHardwareEncoder.Contains("nvenc"))
         {
             sb.Append("-hwaccel cuda ");
-            sb.Append("-hwaccel_output_format cuda ");
-            sb.Append("-init_hw_device cuda=cuda ");
-            sb.Append("-filter_hw_device cuda ");
         }
         else if (d.SelectedHardwareEncoder.Contains("amf"))
         {
             sb.Append("-hwaccel d3d11va ");
-            sb.Append("-hwaccel_output_format d3d11 ");
         }
         else if (d.SelectedHardwareEncoder.Contains("qsv"))
         {
             sb.Append("-hwaccel qsv ");
-            sb.Append("-hwaccel_output_format qsv ");
         }
 
+        //
+        // ---------------------------------------------------------
+        // INPUT FILE
+        // ---------------------------------------------------------
+        //
         sb.Append($"-i \"{task.File.Path}\" ");
 
+        //
+        // DIRECT PLAY
+        //
         if (d.IsDirectPlay)
         {
             task.FinalCommand = string.Empty;
             return task.FinalCommand;
         }
 
+        //
+        // ---------------------------------------------------------
+        // OUTPUT OPTIONS
+        // ---------------------------------------------------------
+        //
         AppendStreamMapping(sb, d);
-        AppendVideoEncoding(sb, d);
-        AppendFilterGraph(sb, d, burnSubPath, task, info);
-        AppendAudioEncoding(sb, d, info);
+        AppendVideoEncoding(sb, d);        // ← SmartDecision decides codec, pix_fmt, profile, level
+        AppendFilterGraph(sb, d, burnSubPath, task, info); // ← SmartDecision decides scaling, burn-in
+        AppendAudioEncoding(sb, d, info);  // ← SmartDecision decides codec, channels, bitrate
         AppendSubtitleHandling(sb);
         AppendContainerFlags(sb, d);
         AppendOutputPath(sb, task);
@@ -194,6 +204,9 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
         task.FinalCommand = sb.ToString();
         return task.FinalCommand;
     }
+
+
+
 
     private static void AppendStreamMapping(StringBuilder sb, SmartDecision d)
     {
@@ -225,6 +238,10 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
         }
 
         var encoder = d.SelectedHardwareEncoder;
+
+        //
+        // Set encoder once
+        //
         sb.Append($"-c:v {encoder} ");
 
         //
@@ -232,7 +249,11 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
         //
         if (encoder.Contains("nvenc"))
         {
-            // NVENC chooses nv12/p010 automatically — DO NOT force pix_fmt
+            // NVENC MUST be forced or it will output 10-bit if input is p010
+            if (d.TargetBitDepth == 8)
+                sb.Append("-pix_fmt yuv420p ");
+            else
+                sb.Append("-pix_fmt p010 ");
         }
         else if (encoder.Contains("qsv"))
         {
@@ -247,12 +268,18 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
             sb.Append(d.TargetBitDepth == 8 ? "-pix_fmt yuv420p " : "-pix_fmt yuv420p10le ");
         }
 
+        //
+        // Profile / Level
+        //
         if (!string.IsNullOrWhiteSpace(d.TargetProfile))
             sb.Append($"-profile:v {d.TargetProfile} ");
 
         if (!string.IsNullOrWhiteSpace(d.TargetLevel))
             sb.Append($"-level:v {d.TargetLevel} ");
 
+        //
+        // NVENC preset
+        //
         if (encoder.Contains("nvenc"))
             sb.Append("-preset p5 ");
     }
@@ -270,8 +297,9 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
         bool strict = task.Client.SupportedResolutions?.Length > 0;
 
         string cpuScale = strict
-            ? $"scale={d.TargetWidth}:{d.TargetHeight},setsar=1"
-            : $"scale={d.TargetWidth}:{d.TargetHeight}:force_original_aspect_ratio=decrease,setsar=1";
+            ? $"scale={d.TargetWidth}:{d.TargetHeight},format=yuv420p,setsar=1"
+            : $"scale={d.TargetWidth}:{d.TargetHeight}:force_original_aspect_ratio=decrease,format=yuv420p,setsar=1";
+
 
         //
         // Dolby Vision → strip RPU metadata
@@ -284,19 +312,15 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
         //
         if (d.SelectedHardwareEncoder.Contains("nvenc"))
         {
-            filters.Add(
-                $"scale_cuda={d.TargetWidth}:{d.TargetHeight}:force_original_aspect_ratio=decrease,setsar=1"
-            );
+            filters.Add(cpuScale);
         }
         else if (d.SelectedHardwareEncoder.Contains("amf"))
         {
-            filters.Add(
-                $"scale_d3d11va={d.TargetWidth}:{d.TargetHeight}:force_original_aspect_ratio=decrease,setsar=1"
-            );
+            filters.Add(cpuScale);
         }
         else if (d.SelectedHardwareEncoder.Contains("qsv"))
         {
-            filters.Add($"scale_qsv={d.TargetWidth}:{d.TargetHeight}");
+            filters.Add(cpuScale);
         }
         else
         {
