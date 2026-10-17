@@ -66,9 +66,9 @@ public class FfmpegBootstrapService : IFfmpegBootstrapService
 
 
         await DownloadWithProgressAsync("Downloading FFMPEG", ffmpegUrl, archivePath, progress, cancellationToken);
-        await ExtractWithProgressAsync(archivePath, progress);
-        MoveFiles(progress);
-        Cleanup(archivePath, progress);
+        await ExtractWithProgressAsync(archivePath, progress, cancellationToken);
+        MoveFiles(progress, cancellationToken);
+        Cleanup(archivePath, progress, cancellationToken);
 
         progress.Report(new PrepareProgress("Complete", false));
 
