@@ -41,6 +41,7 @@ public sealed partial class MainWindow : Window
         // hook the events.
         ((App)App.Current).BootstrapComplete += (e) =>
         {
+            NavView.IsPaneVisible = true;
             ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<QueuePage>().GetType());
         };
 
@@ -53,6 +54,7 @@ public sealed partial class MainWindow : Window
         }
         else
         {
+            NavView.IsPaneVisible = false;
             ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<BootstrapPage>().GetType());
         }
     }

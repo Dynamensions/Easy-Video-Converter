@@ -13,7 +13,7 @@
 	<Identity
 	  Name="58572Dynamensions.DynamensionsEasyVideoEncoder"
 	  Publisher="CN=7D1D5281-9FD5-4714-BFD9-00222A346F86"
-	  Version="1.1.05.0" />
+	  Version="1.1.5.0" />
 
 	<mp:PhoneIdentity PhoneProductId="45feeb6e-0c50-4be6-ac18-136effd2c66a" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
