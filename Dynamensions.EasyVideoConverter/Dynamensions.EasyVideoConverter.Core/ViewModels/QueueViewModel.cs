@@ -340,16 +340,19 @@ public partial class QueueViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanStartQueue))]
     private async Task StartQueueAsync()
     {
+        // set the start time.
         StartDateTime = DateTime.Now;
 
-        QueueItem? queueItem = _queue.Items.FirstOrDefault(i =>
-            !i.IsCompleted && !i.IsFailed && !i.IsRunning);
+        // queue up the first item.
+        QueueItem? queueItem = _queue.Items.FirstOrDefault(i => !i.IsConverted);
 
         IsConverting = true;
 
+        // runs through the queue until all items have ran.
         while (queueItem != null)
         {
             QueueStatus = $"Processing {queueItem.File.Name}";
+            RunningItems = 1;
             await ProcessItemAsync(queueItem);
 
             if (AutoClearCompleted)
@@ -358,9 +361,8 @@ public partial class QueueViewModel : ObservableObject
             // Update counters
             UpdateQueueStatistics();
 
-
-            queueItem = _queue.Items.FirstOrDefault(i =>
-                !i.IsCompleted && !i.IsFailed && !i.IsRunning);
+            // queue up the next item; if there is any.
+            queueItem = _queue.Items.FirstOrDefault(i => !i.IsConverted);
         }
 
         IsConverting = false;
