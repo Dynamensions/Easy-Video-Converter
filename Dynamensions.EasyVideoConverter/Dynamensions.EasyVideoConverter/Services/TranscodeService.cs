@@ -111,7 +111,9 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
                 }
                 catch (Exception ex)
                 {
+                    // Log the error, and return the error to the user.
                     logger.LogError(ex, "Failed to kill ffprobe process for {FilePath}. {file}", queueItem.Task.OutputPath, queueItem.Task.OutputFileName);
+                    task.ErrorMessage = ex.Message;
                 }
             }
         });
