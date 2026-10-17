@@ -177,6 +177,7 @@ public partial class QueueViewModel : ObservableObject
     {
         item.IsRunning = true;
         item.Status = "Analyzing";
+        item.Task.StartDateTime = DateTime.Now;
 
         var outputPath = Path.GetDirectoryName(item.Task.OutputPath);
         if (outputPath != null)
@@ -228,9 +229,23 @@ public partial class QueueViewModel : ObservableObject
             // ---------------------------------------------------------
             // 3. Run FFmpeg (burn-in + strip internal subs)
             // ---------------------------------------------------------
-            item.Status = $"Transcoding ({currentStep++}/{totalSteps})";
 
-            await _transcodeService.TranscodeAsync(item, ProgressCallbackDispatcher);
+            if (item.Task.Decision.IsDirectPlay)
+            {
+                item.Status = $"Copying ({currentStep++}/{totalSteps})";
+                var copyProgress = new Progress<double>();
+                copyProgress.ProgressChanged += (s, d) =>
+                {
+                    ProgressCallbackDispatcher?.Invoke((item, d, 0, 0, 0));
+                };
+
+                await _systemService.CopyFileAsync(item.File.Path, item.Task.OutputPath, true, copyProgress, cancellationTokenSource.Token);
+            }
+            else
+            {
+                item.Status = $"Transcoding ({currentStep++}/{totalSteps})";
+                await _transcodeService.TranscodeAsync(item, ProgressCallbackDispatcher);
+            }
 
             // ---------------------------------------------------------
             // 4. Validate output
@@ -263,7 +278,6 @@ public partial class QueueViewModel : ObservableObject
             // ---------------------------------------------------------
             // 6. Completed
             // ---------------------------------------------------------
-            item.Status = "Completed";
             item.IsCompleted = true;
             item.IsConverted = true;
         }
@@ -280,6 +294,7 @@ public partial class QueueViewModel : ObservableObject
         finally
         {
             item.IsRunning = false;
+            item.IsConverted = true;
         }
     }
 
@@ -353,7 +368,11 @@ public partial class QueueViewModel : ObservableObject
         {
             QueueStatus = $"Processing {queueItem.File.Name}";
             RunningItems = 1;
+
             await ProcessItemAsync(queueItem);
+
+            queueItem.EstimatedTimeRemaining = DateTime.Now - queueItem.Task.StartDateTime;
+
 
             if (AutoClearCompleted)
                 _queue.RemoveCompleted();

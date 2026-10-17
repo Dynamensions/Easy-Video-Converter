@@ -282,7 +282,7 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
 
             d.SelectedVideoCodec = info.VideoCodec;
             d.SelectedAudioCodec = info.PrimaryAudioCodec;
-            d.TargetContainer = info.Container;
+            d.TargetContainer = info.NormalizedContainer;
 
             d.SelectedHardwareEncoder = d.SelectedVideoCodec;
             d.Reasons.Add("Direct Play allowed.");
@@ -407,9 +407,9 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
             info.Width > client.MaxWidth ||
             info.Height > client.MaxHeight;
 
-
-        d.TargetWidth = client.MaxWidth;
-        d.TargetHeight = client.MaxHeight;
+        // output video should not exceed input video.
+        //d.TargetWidth = Math.Min(client.MaxWidth, info.Width);
+        //d.TargetHeight = Math.Min(client.MaxHeight, info.Height);
 
         if (d.RequiresScaling)
         {

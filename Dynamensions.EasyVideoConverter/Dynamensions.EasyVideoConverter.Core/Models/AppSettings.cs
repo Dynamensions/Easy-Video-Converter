@@ -6,6 +6,9 @@ public class AppSettings
     public string FFmpegPath { get; set; } = "ffmpeg.exe";
 
 
+    // Video
+    public bool UpscaleVideo { get; set; }
+
     public string OutputFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
 
     public string? SelectedEncoderProfileName { get; set; }

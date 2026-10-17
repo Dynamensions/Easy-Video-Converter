@@ -3,8 +3,11 @@ using Dynamensions.EasyVideoConverter.Core.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Management;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Services;
 
@@ -74,6 +77,31 @@ internal class SystemService(ILogger<SystemService> logger) : ISystemService
         return [.. searcher.Get()
                        .Cast<ManagementObject>()
                        .Select(mo => (mo["Name"]?.ToString() ?? string.Empty))];
+    }
+
+    public async Task<bool> CopyFileAsync(string sourcePath, string destinationPath, bool overwriteExistingFile = false, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
+    {
+        if (File.Exists(destinationPath) && !overwriteExistingFile) return false;
+
+        const int bufferSize = 1024 * 1024; // 1 MB buffer
+        byte[] buffer = new byte[bufferSize];
+
+        long totalBytes = new FileInfo(sourcePath).Length;
+        long totalRead = 0;
+
+        await using var source = File.OpenRead(sourcePath);
+        await using var dest = File.Create(destinationPath);
+
+        int bytesRead;
+        while ((bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
+        {
+            await dest.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+            totalRead += bytesRead;
+
+            progress?.Report((double)totalRead / totalBytes);
+        }
+
+        return true;
     }
 }
 

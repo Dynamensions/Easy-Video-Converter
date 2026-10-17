@@ -72,6 +72,9 @@ public partial class SettingsViewModel : ObservableObject
     private string? ffprobePath;
 
     [ObservableProperty]
+    private bool? isUpscalingVideo;
+
+    [ObservableProperty]
     private EncoderHardware hardware = new()
     {
         SupportsNvenc = true,
@@ -168,6 +171,7 @@ public partial class SettingsViewModel : ObservableObject
     {
         IsSaving = true;
 
+        settingsService.Settings.UpscaleVideo = IsUpscalingVideo ?? false;
 
         settingsService.Settings.PreferredBurninLanguage = SelectedBurnInLanguage.Code;
 
