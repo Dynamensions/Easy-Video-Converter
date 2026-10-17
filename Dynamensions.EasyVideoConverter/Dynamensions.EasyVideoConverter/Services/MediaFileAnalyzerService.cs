@@ -131,6 +131,7 @@ public sealed partial class MediaFileAnalyzerService(ILogger<MediaFileAnalyzerSe
             process.BeginOutputReadLine();
 
             await process.WaitForExitAsync(cancellationToken);
+            LogFfprobeExitCode(filePath, process.ExitCode);
         }
         catch (TaskCanceledException)
         {
@@ -141,8 +142,6 @@ public sealed partial class MediaFileAnalyzerService(ILogger<MediaFileAnalyzerSe
             LogFfprobeFailed(filePath);
             logger.LogError(ex, "ffprobe failed for {FilePath}", filePath);
         }
-
-        LogFfprobeExitCode(filePath, process.ExitCode);
 
         if (error.Length > 0 && logger.IsEnabled(LogLevel.Debug))
         {
