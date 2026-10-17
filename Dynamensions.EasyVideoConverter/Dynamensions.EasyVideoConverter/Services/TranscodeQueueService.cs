@@ -54,7 +54,7 @@ public class TranscodeQueueService : ITranscodeQueueService
 
     public void RemoveCompleted()
     {
-        var completedItems = _items.Where(i => i.Status == "Completed").ToList();
+        var completedItems = _items.Where(i => i.IsCompleted).ToList();
 
         SmartDecisionQueueLog.QueueRemoveCompletedBegin(logger, completedItems.Count);
 

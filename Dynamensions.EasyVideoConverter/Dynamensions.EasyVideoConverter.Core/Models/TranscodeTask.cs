@@ -6,7 +6,7 @@ namespace Dynamensions.EasyVideoConverter.Core.Models;
 public partial class TranscodeTask : ObservableObject
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-
+    public DateTime StartDateTime { get; set; }
     public PerformanceBucketKey PerformanceKey { get; } = new PerformanceBucketKey();
 
 

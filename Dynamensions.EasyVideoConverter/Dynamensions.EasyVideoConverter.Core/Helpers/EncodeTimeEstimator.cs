@@ -132,7 +132,6 @@ public class EncodeTimeEstimator(IPerformanceBucketService performanceBucketServ
         return elapsedSeconds * (1 / progress - 1);
     }
 
-
     public static PerformanceBucketKey CreatePerformanceKey(MediaInfo mediaInfo, SmartDecision smartDecision)
     {
         return new PerformanceBucketKey

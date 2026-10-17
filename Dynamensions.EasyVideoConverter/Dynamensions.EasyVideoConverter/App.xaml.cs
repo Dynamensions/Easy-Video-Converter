@@ -15,7 +15,6 @@ namespace Dynamensions.EasyVideoConverter;
 
 public partial class App : Application
 {
-    public event Action<bool>? BootstrapComplete;
     public static IHost AppHost { get; private set; } = default!;
     public static Window MainWindow { get; private set; } = default!;
 
@@ -112,9 +111,5 @@ public partial class App : Application
         MainWindow.Activate();
     }
 
-    public void InvokeBootstrapComplete(bool isSuccessful)
-    {
-        BootstrapComplete?.Invoke(isSuccessful);
-    }
 
 }

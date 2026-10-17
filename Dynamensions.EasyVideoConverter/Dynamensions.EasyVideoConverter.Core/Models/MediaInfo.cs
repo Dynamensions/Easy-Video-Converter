@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Dynamensions.EasyVideoConverter.Core.Models;
+﻿namespace Dynamensions.EasyVideoConverter.Core.Models;
 
 public class MediaInfo
 {

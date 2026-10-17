@@ -1,4 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Dynamensions.EasyVideoConverter.Core.Messages;
 using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Services;
 
@@ -6,6 +9,8 @@ namespace Dynamensions.EasyVideoConverter.Core.ViewModels
 {
     public partial class BootstrapViewModel(IFfmpegBootstrapService ffmpegBootstrapService) : ObservableObject
     {
+        private readonly CancellationTokenSource cancellationTokenSource = new();
+
         [ObservableProperty]
         private PrepareProgress? prepareProgress;
 
@@ -22,10 +27,14 @@ namespace Dynamensions.EasyVideoConverter.Core.ViewModels
         [ObservableProperty]
         private string? percentMessage;
 
+        [ObservableProperty]
+        private bool isConfirmingPrepare = true;
 
-
-        public async Task PrepareApplicationAsync(CancellationToken cancellationToken)
+        [RelayCommand]
+        private async Task PrepareApplicationAsync()
         {
+            IsConfirmingPrepare = false;
+
             var p = new Progress<PrepareProgress>();
             p.ProgressChanged += (s, e) =>
             {
@@ -35,8 +44,17 @@ namespace Dynamensions.EasyVideoConverter.Core.ViewModels
                 PercentMessage = e.PercentMessage;
             };
 
+            await ffmpegBootstrapService.PrepareDependenciesAsync(p, cancellationTokenSource.Token);
 
-            await ffmpegBootstrapService.InitializeAsync(p, cancellationToken);
+            // file a message when the initialize completes.
+            WeakReferenceMessenger.Default.Send(new ApplicationPrepareCompleteMessage(ffmpegBootstrapService.IsInitialized));
+        }
+
+        [RelayCommand]
+        private async Task CancelAsync()
+        {
+            await cancellationTokenSource.CancelAsync();
+            await ffmpegBootstrapService.ExitAppAsync();
         }
 
 

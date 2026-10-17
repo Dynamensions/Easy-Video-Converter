@@ -12,7 +12,6 @@ namespace Dynamensions.EasyVideoConverter.Core.ViewModels;
 
 public partial class QueueViewModel : ObservableObject
 {
-    private readonly CancellationTokenSource cancellationTokenSource = new();
 
     #region Queue Collection (Exposed to UI)
     // =========================================================
@@ -177,6 +176,8 @@ public partial class QueueViewModel : ObservableObject
     {
         item.IsRunning = true;
         item.Status = "Analyzing";
+        item.Task.StartDateTime = DateTime.Now;
+        UpdateQueueStatistics();
 
         var outputPath = Path.GetDirectoryName(item.Task.OutputPath);
         if (outputPath != null)
@@ -207,7 +208,7 @@ public partial class QueueViewModel : ObservableObject
                 item.Status = $"Extracting burn-in subtitle ({currentStep++}/{totalSteps})";
 
                 item.Task.BurnInSubtitlePath =
-                    await _subtitleExtractorService.ExtractForBurnInAsync(item, ProgressCallbackDispatcher, cancellationTokenSource.Token);
+                    await _subtitleExtractorService.ExtractForBurnInAsync(item, ProgressCallbackDispatcher, item.Cancellation.Token);
             }
 
             // ---------------------------------------------------------
@@ -222,15 +223,29 @@ public partial class QueueViewModel : ObservableObject
                     decision.ExternalSubtitles,
                     ProgressCallbackDispatcher,
                     SubtitleCallback,
-                    cancellationTokenSource.Token);
+                    item.Cancellation.Token);
             }
 
             // ---------------------------------------------------------
             // 3. Run FFmpeg (burn-in + strip internal subs)
             // ---------------------------------------------------------
-            item.Status = $"Transcoding ({currentStep++}/{totalSteps})";
 
-            await _transcodeService.TranscodeAsync(item, ProgressCallbackDispatcher);
+            if (item.Task.Decision.IsDirectPlay)
+            {
+                item.Status = $"Copying ({currentStep++}/{totalSteps})";
+                var copyProgress = new Progress<double>();
+                copyProgress.ProgressChanged += (s, d) =>
+                {
+                    ProgressCallbackDispatcher?.Invoke((item, d, 0, 0, 0));
+                };
+
+                await _systemService.CopyFileAsync(item.File.Path, item.Task.OutputPath, true, copyProgress, item.Cancellation.Token);
+            }
+            else
+            {
+                item.Status = $"Transcoding ({currentStep++}/{totalSteps})";
+                await _transcodeService.TranscodeAsync(item, ProgressCallbackDispatcher);
+            }
 
             // ---------------------------------------------------------
             // 4. Validate output
@@ -241,7 +256,7 @@ public partial class QueueViewModel : ObservableObject
                 item.Task.OutputPath,
                 item.Task.Client,
                 item.Task.Decision,
-                cancellationTokenSource.Token);
+                item.Cancellation.Token);
 
             if (!result.IsCompliant)
             {
@@ -263,9 +278,8 @@ public partial class QueueViewModel : ObservableObject
             // ---------------------------------------------------------
             // 6. Completed
             // ---------------------------------------------------------
-            item.Status = "Completed";
             item.IsCompleted = true;
-            item.IsConverted = true;
+            item.Status = $"Complete;";
         }
         catch (OperationCanceledException)
         {
@@ -280,6 +294,7 @@ public partial class QueueViewModel : ObservableObject
         finally
         {
             item.IsRunning = false;
+            item.IsConverted = true;
         }
     }
 
@@ -340,17 +355,22 @@ public partial class QueueViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanStartQueue))]
     private async Task StartQueueAsync()
     {
+        // set the start time.
         StartDateTime = DateTime.Now;
 
-        QueueItem? queueItem = _queue.Items.FirstOrDefault(i =>
-            !i.IsCompleted && !i.IsFailed && !i.IsRunning);
+        // queue up the first item.
+        QueueItem? queueItem = _queue.Items.FirstOrDefault(i => !i.IsConverted);
 
         IsConverting = true;
 
+        // runs through the queue until all items have ran.
         while (queueItem != null)
         {
             QueueStatus = $"Processing {queueItem.File.Name}";
+
             await ProcessItemAsync(queueItem);
+
+            queueItem.EstimatedTimeRemaining = DateTime.Now - queueItem.Task.StartDateTime;
 
             if (AutoClearCompleted)
                 _queue.RemoveCompleted();
@@ -358,9 +378,8 @@ public partial class QueueViewModel : ObservableObject
             // Update counters
             UpdateQueueStatistics();
 
-
-            queueItem = _queue.Items.FirstOrDefault(i =>
-                !i.IsCompleted && !i.IsFailed && !i.IsRunning);
+            // queue up the next item; if there is any.
+            queueItem = _queue.Items.FirstOrDefault(i => !i.IsConverted);
         }
 
         IsConverting = false;
@@ -437,7 +456,7 @@ public partial class QueueViewModel : ObservableObject
         // 3. SmartDecision
         var decision = _smartDecisionService.Decide(SelectedEncoderProfile, SelectedClientProfile, info);
 
-        // 4. Esitmate encoding time
+        // 4. Estimate encoding time
         var key = EncodeTimeEstimator.CreatePerformanceKey(info, decision);
         var conversionSeconds = _encodeTimeEstimator.EstimatePreEncode(key, info.Duration.TotalSeconds);
 
@@ -455,15 +474,15 @@ public partial class QueueViewModel : ObservableObject
     {
         IsProfileSelectionEnabled = false;
 
-        foreach (var item in _queue.Items.Where(x => x.IsConverted == false || x.IsRunning == false))
+        foreach (var item in _queue.Items.Where(x => x.IsRunning == false && x.IsConverted == false))
         {
             _smartDecisionService.Decide(SelectedEncoderProfile, SelectedClientProfile, item.Info, item.Task.Decision);
 
             // estimate conversion time
-            // 5. Build temporary PerformanceKey for estimation
+            // 1. Build temporary PerformanceKey for estimation
             var perfKey = EncodeTimeEstimator.CreatePerformanceKey(item.Info, item.Task.Decision);
 
-            // 6. Estimate encoding time
+            // 2. Estimate encoding time
             var secondsRemaining = _encodeTimeEstimator.EstimatePreEncode(perfKey, item.Info.Duration.TotalSeconds);
             item.EstimatedTimeRemaining = TimeSpan.FromSeconds(secondsRemaining);
 
@@ -496,7 +515,6 @@ public partial class QueueViewModel : ObservableObject
     {
         foreach (var item in _queue.Items)
         {
-            cancellationTokenSource.Cancel();
             item.Cancellation.Cancel();
         }
     }

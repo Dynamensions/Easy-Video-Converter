@@ -16,8 +16,9 @@
             <!-- Other app resources here -->
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
             <converters:TimespanToVisibilityConverter x:Key="TimespanToVisibilityConverter"/>
-            
+
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:BoolToVisibilityInvertedConverter x:Key="BoolToVisibilityInvertedConverter"/>
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter"/>
             <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
             <converters:DoubleToCurrentFpsStringConverter x:Key="DoubleToCurrentFpsStringConverter"/>
