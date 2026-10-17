@@ -49,5 +49,7 @@ public partial class TranscodeTask : ObservableObject
 
     public required ClientProfile Client { get; set; }
 
+    [ObservableProperty]
+    private string? errorMessage;
 
 }

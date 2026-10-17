@@ -363,7 +363,7 @@
                                                    FontWeight="SemiBold"
                                                    Foreground="White"/>
                                         </Border>
-
+                                        
                                         <!-- REMOVE BUTTON -->
                                         <Button Command="{Binding DataContext.RemoveItemCommand, ElementName=RootPage}"
                                             CommandParameter="{x:Bind}"
@@ -377,6 +377,7 @@
                                     </StackPanel>
 
                                     <TextBlock Text="{x:Bind Task.OutputFileName, Mode=OneWay}" Opacity="0.7" />
+                                    <TextBlock Text="{x:Bind Task.ErrorMessage, Mode=OneWay}" Opacity="0.7" />
                                 </StackPanel>
 
                                 <!-- STATUS + CANCEL -->
