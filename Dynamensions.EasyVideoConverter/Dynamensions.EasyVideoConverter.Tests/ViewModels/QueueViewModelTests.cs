@@ -123,7 +123,6 @@ namespace Dynamensions.EasyVideoConverter.Tests.ViewModels
                     File= new(),
                     Info = new (),
                     ServerProfile = new (),
-                    Decision = new(),
                     Task = new TranscodeTask() { Client = new ClientProfile() {RequiresAacStereoFallback = false }  }
                 }
             };
