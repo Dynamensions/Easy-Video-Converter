@@ -76,11 +76,11 @@ public static class AudioCodecNormalizer
         if (codec.Contains("aac"))
             return "aac";
 
-        if (codec.Contains("ac3"))
-            return "ac3";
-
         if (codec.Contains("eac3"))
             return "eac3";
+
+        if (codec.Contains("ac3"))
+            return "ac3";
 
         if (codec.Contains("opus"))
             return "opus";
