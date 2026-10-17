@@ -15,24 +15,6 @@ public class MediaInfo
     // ---------------------------------------------------------
     public string Container { get; set; } = "unknown";
 
-    private static readonly Dictionary<string, string> ContainerMap = new()
-    {
-        { "matroska", "mkv" },
-        { "webm", "webm" },
-        { "mov,mp4,m4a,3gp,3g2,mj2", "mp4" },
-        { "avi", "avi" },
-        { "mpegts", "ts" },
-        { "mpeg", "mpeg" },
-        { "ogg", "ogg" },
-        { "asf", "wmv" },
-        { "flv", "flv" }
-    };
-
-    public string NormalizedContainer =>
-        ContainerMap.TryGetValue(Container, out var normalized)
-        ? normalized
-        : Container;
-
     // ---------------------------------------------------------
     // VIDEO
     // ---------------------------------------------------------
