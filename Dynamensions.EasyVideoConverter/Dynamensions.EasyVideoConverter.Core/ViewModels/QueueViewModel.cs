@@ -12,7 +12,6 @@ namespace Dynamensions.EasyVideoConverter.Core.ViewModels;
 
 public partial class QueueViewModel : ObservableObject
 {
-    private readonly CancellationTokenSource cancellationTokenSource = new();
 
     #region Queue Collection (Exposed to UI)
     // =========================================================
@@ -178,6 +177,7 @@ public partial class QueueViewModel : ObservableObject
         item.IsRunning = true;
         item.Status = "Analyzing";
         item.Task.StartDateTime = DateTime.Now;
+        UpdateQueueStatistics();
 
         var outputPath = Path.GetDirectoryName(item.Task.OutputPath);
         if (outputPath != null)
@@ -208,7 +208,7 @@ public partial class QueueViewModel : ObservableObject
                 item.Status = $"Extracting burn-in subtitle ({currentStep++}/{totalSteps})";
 
                 item.Task.BurnInSubtitlePath =
-                    await _subtitleExtractorService.ExtractForBurnInAsync(item, ProgressCallbackDispatcher, cancellationTokenSource.Token);
+                    await _subtitleExtractorService.ExtractForBurnInAsync(item, ProgressCallbackDispatcher, item.Cancellation.Token);
             }
 
             // ---------------------------------------------------------
@@ -223,7 +223,7 @@ public partial class QueueViewModel : ObservableObject
                     decision.ExternalSubtitles,
                     ProgressCallbackDispatcher,
                     SubtitleCallback,
-                    cancellationTokenSource.Token);
+                    item.Cancellation.Token);
             }
 
             // ---------------------------------------------------------
@@ -239,7 +239,7 @@ public partial class QueueViewModel : ObservableObject
                     ProgressCallbackDispatcher?.Invoke((item, d, 0, 0, 0));
                 };
 
-                await _systemService.CopyFileAsync(item.File.Path, item.Task.OutputPath, true, copyProgress, cancellationTokenSource.Token);
+                await _systemService.CopyFileAsync(item.File.Path, item.Task.OutputPath, true, copyProgress, item.Cancellation.Token);
             }
             else
             {
@@ -256,7 +256,7 @@ public partial class QueueViewModel : ObservableObject
                 item.Task.OutputPath,
                 item.Task.Client,
                 item.Task.Decision,
-                cancellationTokenSource.Token);
+                item.Cancellation.Token);
 
             if (!result.IsCompliant)
             {
@@ -279,7 +279,7 @@ public partial class QueueViewModel : ObservableObject
             // 6. Completed
             // ---------------------------------------------------------
             item.IsCompleted = true;
-            item.IsConverted = true;
+            item.Status = $"Complete;";
         }
         catch (OperationCanceledException)
         {
@@ -367,12 +367,10 @@ public partial class QueueViewModel : ObservableObject
         while (queueItem != null)
         {
             QueueStatus = $"Processing {queueItem.File.Name}";
-            RunningItems = 1;
 
             await ProcessItemAsync(queueItem);
 
             queueItem.EstimatedTimeRemaining = DateTime.Now - queueItem.Task.StartDateTime;
-
 
             if (AutoClearCompleted)
                 _queue.RemoveCompleted();
@@ -476,7 +474,7 @@ public partial class QueueViewModel : ObservableObject
     {
         IsProfileSelectionEnabled = false;
 
-        foreach (var item in _queue.Items.Where(x => x.IsConverted == false || x.IsRunning == false))
+        foreach (var item in _queue.Items.Where(x => x.IsRunning == false && x.IsConverted == false))
         {
             _smartDecisionService.Decide(SelectedEncoderProfile, SelectedClientProfile, item.Info, item.Task.Decision);
 
@@ -517,7 +515,6 @@ public partial class QueueViewModel : ObservableObject
     {
         foreach (var item in _queue.Items)
         {
-            cancellationTokenSource.Cancel();
             item.Cancellation.Cancel();
         }
     }
