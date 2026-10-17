@@ -437,7 +437,7 @@ public partial class QueueViewModel : ObservableObject
         // 3. SmartDecision
         var decision = _smartDecisionService.Decide(SelectedEncoderProfile, SelectedClientProfile, info);
 
-        // 4. Esitmate encoding time
+        // 4. Estimate encoding time
         var key = EncodeTimeEstimator.CreatePerformanceKey(info, decision);
         var conversionSeconds = _encodeTimeEstimator.EstimatePreEncode(key, info.Duration.TotalSeconds);
 
