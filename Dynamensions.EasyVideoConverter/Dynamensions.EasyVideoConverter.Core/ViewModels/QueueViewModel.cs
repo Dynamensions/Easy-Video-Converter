@@ -460,10 +460,10 @@ public partial class QueueViewModel : ObservableObject
             _smartDecisionService.Decide(SelectedEncoderProfile, SelectedClientProfile, item.Info, item.Task.Decision);
 
             // estimate conversion time
-            // 5. Build temporary PerformanceKey for estimation
+            // 1. Build temporary PerformanceKey for estimation
             var perfKey = EncodeTimeEstimator.CreatePerformanceKey(item.Info, item.Task.Decision);
 
-            // 6. Estimate encoding time
+            // 2. Estimate encoding time
             var secondsRemaining = _encodeTimeEstimator.EstimatePreEncode(perfKey, item.Info.Duration.TotalSeconds);
             item.EstimatedTimeRemaining = TimeSpan.FromSeconds(secondsRemaining);
 
