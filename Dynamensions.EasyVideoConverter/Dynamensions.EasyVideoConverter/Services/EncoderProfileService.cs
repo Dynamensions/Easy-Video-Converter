@@ -1,5 +1,4 @@
-﻿using Dynamensions.EasyVideoConverter.Core.Helpers;
-using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+﻿using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 using Dynamensions.EasyVideoConverter.Core.Serialization;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Microsoft.Extensions.Logging;

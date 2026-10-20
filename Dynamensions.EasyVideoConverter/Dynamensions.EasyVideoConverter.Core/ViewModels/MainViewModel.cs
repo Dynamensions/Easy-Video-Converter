@@ -51,7 +51,7 @@ public partial class MainViewModel// : ObservableObject
     //    // ---------------------------------------------------------
     //    private readonly ServerProfileService _serverProfileService;
     //    private readonly FfprobeService _ffprobeService;
-    //    private readonly SmartDecisionService _smartDecisionService;
+    //    private readonly SmartDecisionService _smartDecisionProcess;
     //    private readonly BuildCommandService _buildCommandService;
     //    private readonly IPickerService _pickerService;
     //    private readonly TranscodeQueueService _transcodeQueueService;
@@ -71,7 +71,7 @@ public partial class MainViewModel// : ObservableObject
     //    {
     //        _serverProfileService = serverProfileService;
     //        _ffprobeService = ffprobeService;
-    //        _smartDecisionService = smartDecisionService;
+    //        _smartDecisionProcess = smartDecisionService;
     //        _buildCommandService = buildCommandService;
     //        _pickerService = pickerService;
     //        _transcodeQueueService = transcodeQueueService;
@@ -113,7 +113,7 @@ public partial class MainViewModel// : ObservableObject
     //        if (MediaInfo == null || SelectedServerProfile == null)
     //            return;
 
-    //        Decision = _smartDecisionService.Evaluate(MediaInfo, SelectedServerProfile);
+    //        Decision = _smartDecisionProcess.Evaluate(MediaInfo, SelectedServerProfile);
     //        DecisionExplanation = Decision?.Explanation ?? new();
     //        ConfidenceScore = Decision?.Confidence ?? 0;
     //        ConfidenceExplanation = Decision?.ConfidenceExplanation ?? [];

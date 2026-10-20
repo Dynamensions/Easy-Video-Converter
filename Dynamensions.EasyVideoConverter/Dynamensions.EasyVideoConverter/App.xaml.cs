@@ -1,4 +1,5 @@
 ﻿using Dynamensions.EasyVideoConverter.Core.Helpers;
+using Dynamensions.EasyVideoConverter.Core.Processes;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Dynamensions.EasyVideoConverter.Core.ViewModels;
 using Dynamensions.EasyVideoConverter.Services;
@@ -58,18 +59,20 @@ public partial class App : Application
                 services.AddSingleton<IEncoderProfileService, EncoderProfileService>();
                 services.AddSingleton<IFfmpegBootstrapService, FfmpegBootstrapService>();
                 services.AddSingleton<IMediaFileAnalyzerService, MediaFileAnalyzerService>();
-                services.AddSingleton<IPerformanceBucketService, PerformanceBucketService>();
                 services.AddSingleton<IPickerService, WinUIPickerService>();
                 services.AddSingleton<ISettingsService, SettingsService>();
-                services.AddSingleton<ISmartDecisionService, SmartDecisionService>();
                 services.AddSingleton<ISubtitleExtractorService, SubtitleExtractorService>();
                 services.AddSingleton<ISystemService, SystemService>();
                 services.AddSingleton<ITranscodeQueueService, TranscodeQueueService>();
                 services.AddSingleton<ITranscodeService, TranscodeService>();
 
+                // processes
+                services.AddSingleton<SmartDecisionProcess>();
+                services.AddSingleton<EncodeTimeEstimatorProcess>();
+
 
                 // helpers
-                services.AddSingleton<EncodeTimeEstimator>();
+                services.AddSingleton<EncodeTimeEstimatorProcess>();
                 services.AddSingleton<SmartDecisionComplianceValidator>();
 
                 // ViewModels

@@ -1,27 +1,37 @@
 ﻿using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Models.Enums;
-using Dynamensions.EasyVideoConverter.Core.Services;
+using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
-namespace Dynamensions.EasyVideoConverter.Core.Helpers;
+namespace Dynamensions.EasyVideoConverter.Core.Processes;
 
-public sealed class EncoderCapabilities
+public partial class EncodeTimeEstimatorProcess(ILogger<EncodeTimeEstimatorProcess> logger)
 {
-    public bool HasCpu { get; init; } = true;
-    public bool HasNvidia { get; init; }
-    public bool HasIntelQsv { get; init; }
-    public bool HasAmdAmf { get; init; }
-}
-
-
-public class EncodeTimeEstimator(IPerformanceBucketService performanceBucketService)
-{
+    // Thread-safe bucket storage
+    private readonly ConcurrentDictionary<string, PerformanceBucket> _buckets = new();
 
     // ---------------------------------------------------------
     // RECORD SAMPLE
     // ---------------------------------------------------------
     public void RecordJob(PerformanceBucketKey key, double sourceSeconds, double encodeSeconds)
     {
-        performanceBucketService.RecordJob(key, sourceSeconds, encodeSeconds);
+        if (key == null)
+        {
+            LogNullKey();
+            return;
+        }
+
+        var bucketKey = key.ToKeyString();
+
+        var bucket = _buckets.GetOrAdd(bucketKey, _ =>
+        {
+            LogBucketCreated(bucketKey);
+            return new PerformanceBucket();
+        });
+
+        bucket.AddSample(sourceSeconds, encodeSeconds);
+
+        LogSampleRecorded(bucketKey, sourceSeconds, encodeSeconds, bucket.SampleCount);
     }
 
     // ---------------------------------------------------------
@@ -29,7 +39,7 @@ public class EncodeTimeEstimator(IPerformanceBucketService performanceBucketServ
     // ---------------------------------------------------------
     public double EstimatePreEncode(PerformanceBucketKey key, double sourceSeconds, int activeJobs = 1)
     {
-        var bucket = performanceBucketService.GetBucket(key);
+        var bucket = GetBucket(key);
 
         double secondsPerSecond;
 
@@ -118,7 +128,6 @@ public class EncodeTimeEstimator(IPerformanceBucketService performanceBucketServ
         return sourceSeconds * secondsPerSecond;
     }
 
-
     // ---------------------------------------------------------
     // LIVE ESTIMATE
     // ---------------------------------------------------------
@@ -151,5 +160,66 @@ public class EncodeTimeEstimator(IPerformanceBucketService performanceBucketServ
         };
     }
 
+    // ---------------------------------------------------------
+    // GET BUCKET
+    // ---------------------------------------------------------
+    private PerformanceBucket? GetBucket(PerformanceBucketKey key)
+    {
+        if (key == null)
+        {
+            LogNullKey();
+            return null;
+        }
+
+        var bucketKey = key.ToKeyString();
+
+        if (_buckets.TryGetValue(bucketKey, out var bucket))
+        {
+            LogBucketFound(bucketKey, bucket.SampleCount);
+            return bucket;
+        }
+
+        LogBucketMissing(bucketKey);
+        return null;
+    }
+
+    // ---------------------------------------------------------
+    // SOURCE-GENERATED LOGGING
+    // ---------------------------------------------------------
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning,
+        Message = "PerformanceBucketService received null key.")]
+    private partial void LogNullKey();
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug,
+        Message = "Bucket found → {BucketKey} (Samples={SampleCount})")]
+    private partial void LogBucketFound(string bucketKey, int sampleCount);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Debug,
+        Message = "Bucket missing → {BucketKey}")]
+    private partial void LogBucketMissing(string bucketKey);
+
+    [LoggerMessage(EventId = 4, Level = LogLevel.Information,
+        Message = "Created new performance bucket → {BucketKey}")]
+    private partial void LogBucketCreated(string bucketKey);
+
+    [LoggerMessage(EventId = 5, Level = LogLevel.Debug,
+        Message = "Recorded sample → {BucketKey} Input={InputSeconds}s Encode={EncodeSeconds}s (TotalSamples={SampleCount})")]
+    private partial void LogSampleRecorded(string bucketKey, double InputSeconds, double EncodeSeconds, int SampleCount);
+
+    [LoggerMessage(EventId = 6, Level = LogLevel.Debug,
+        Message = "Estimated encode speed for {BucketKey} → {SecondsPerSecond} sec/sec")]
+    private partial void LogSpeedEstimated(string bucketKey, double SecondsPerSecond);
+
+    [LoggerMessage(EventId = 7, Level = LogLevel.Warning,
+        Message = "Encode speed fallback used for {BucketKey}")]
+    private partial void LogSpeedFallback(string bucketKey);
+
+    [LoggerMessage(EventId = 8, Level = LogLevel.Debug,
+        Message = "Estimated load for {BucketKey} → {LoadPercent}%")]
+    private partial void LogLoadEstimated(string bucketKey, int LoadPercent);
+
+    [LoggerMessage(EventId = 9, Level = LogLevel.Warning,
+        Message = "Load fallback used for {BucketKey}")]
+    private partial void LogLoadFallback(string bucketKey);
 
 }
