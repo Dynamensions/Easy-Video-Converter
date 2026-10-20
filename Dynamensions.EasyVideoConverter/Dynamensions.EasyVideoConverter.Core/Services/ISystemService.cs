@@ -1,10 +1,15 @@
-﻿using Dynamensions.EasyVideoConverter.Core.Helpers;
+﻿namespace Dynamensions.EasyVideoConverter.Core.Services;
 
-namespace Dynamensions.EasyVideoConverter.Core.Services;
+public sealed class EncoderCapabilities
+{
+    public bool HasCpu { get; init; } = true;
+    public bool HasNvidia { get; init; }
+    public bool HasIntelQsv { get; init; }
+    public bool HasAmdAmf { get; init; }
+}
 
 public interface ISystemService
 {
-
     EncoderCapabilities GetEncoderCapabilities();
     bool HasFfmpegEncoder(string ffmpegPath, string encoderName);
     Task<bool> CopyFileAsync(string sourcePath,
