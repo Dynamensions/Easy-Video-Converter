@@ -4,18 +4,12 @@ using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Dynamensions.EasyVideoConverter.Helpers;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
 
-namespace Dynamensions.EasyVideoConverter.Services;
+namespace Dynamensions.EasyVideoConverter.Core.Processes;
 
-public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISettingsService settingsService) : ISmartDecisionService
+public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsService settingsService)
 {
-    public SmartDecision Decide(
-        EncoderProfile encoder,
-        ClientProfile client,
-        MediaInfo info,
-        SmartDecision? d = null)
+    public SmartDecision UpdateSmartDecision(EncoderProfile encoder, ClientProfile client, MediaInfo info, SmartDecision? d = null)
     {
         if (encoder == null || client == null) return d ?? new();
 
@@ -272,74 +266,6 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
             SmartDecisionLog.AudioStereoAac(logger);
         }
 
-
-
-        // ---------------------------------------------------------
-        // DIRECT PLAY
-        // ---------------------------------------------------------
-        //if (client.CanDirectPlay(info) && !d.SubtitlesForceTranscode && !d.RequiresAudioEncode)
-        //{
-        //    d.IsDirectPlay = true;
-        //    d.IsDirectStream = false;
-        //    d.RequiresVideoEncode = false;
-        //    d.RequiresAudioEncode = false;
-
-        //    d.SelectedVideoCodec = info.VideoCodec;
-        //    d.SelectedAudioCodec = info.PrimaryAudioCodec;
-        //    d.TargetContainer = info.NormalizedContainer;
-
-        //    d.SelectedHardwareEncoder = d.SelectedVideoCodec;
-        //    d.Reasons.Add("Direct Play allowed.");
-        //    SmartDecisionLog.DirectPlayAllowed(logger);
-        //    return d;
-        //}
-
-        // ---------------------------------------------------------
-        // DIRECT STREAM
-        // ---------------------------------------------------------
-        //if (client.CanDirectStream(info) && !d.SubtitlesForceTranscode)
-        //{
-        //    d.IsDirectPlay = false;
-        //    d.IsDirectStream = true;
-        //    d.RequiresVideoEncode = false;
-
-        //    d.RequiresAudioEncode = !codecSupported || !channelsSupported;
-
-        //    if (!d.RequiresAudioEncode)
-        //    {
-        //        d.SelectedAudioCodec = info.PrimaryAudioCodec;
-        //        SmartDecisionLog.DirectStreamAudioPassthrough(logger);
-        //    }
-        //    else
-        //    {
-        //        d.SelectedAudioCodec = ChooseAudioCodec(client, info);
-        //        d.Reasons.Add($"Audio transcoding required → selected {d.SelectedAudioCodec}.");
-        //        SmartDecisionLog.DirectStreamAudioTranscode(logger);
-        //    }
-
-        //    // Decide target audio channels
-        //    if (d.AudioDownmixToStereo)
-        //    {
-        //        d.TargetAudioChannels = 2;
-        //        d.Reasons.Add("Target audio channels set to 2 (downmix).");
-        //        SmartDecisionLog.DirectStreamDownmixStereo(logger);
-        //    }
-        //    else
-        //    {
-        //        d.TargetAudioChannels = Math.Min(info.AudioChannels, client.MaxAudioChannels);
-        //        d.Reasons.Add($"Target audio channels set to {d.TargetAudioChannels}.");
-        //        SmartDecisionLog.DirectStreamTargetChannels(logger);
-        //    }
-
-        //    d.SelectedVideoCodec = info.VideoCodec;
-        //    d.TargetContainer = client.PreferredContainer;
-
-        //    d.SelectedHardwareEncoder = d.SelectedVideoCodec;
-        //    d.Reasons.Add("Direct Stream allowed.");
-        //    SmartDecisionLog.DirectStreamAllowed(logger);
-        //    return d;
-        //}
-
         // ---------------------------------------------------------
         // FULL TRANSCODE
         // ---------------------------------------------------------
@@ -373,7 +299,7 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
 
 
         // Clamp audio bit rate to safe levels.
-        ClampBitRate(client, info, d);
+        ClampBitRate(info, d);
 
 
         // Video output format
@@ -489,7 +415,7 @@ public class SmartDecisionService(ILogger<SmartDecisionService> logger, ISetting
         return client.PreferredAudioCodec;
     }
 
-    private static void ClampBitRate(ClientProfile client, MediaInfo info, SmartDecision d)
+    private static void ClampBitRate(MediaInfo info, SmartDecision d)
     {
         int sourceKbps = (int)(info.AudioBitrate / 1000);
 

@@ -1,4 +1,4 @@
-﻿using Dynamensions.EasyVideoConverter.Core.Helpers;
+﻿using Dynamensions.EasyVideoConverter.Core.Processes;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -13,7 +13,7 @@ namespace Dynamensions.EasyVideoConverter.Tests
             // Arrange
             var loggerMock = new Mock<ILogger<Core.Services.ITranscodeService>>();
             var transcodeMock = new Mock<ITranscodeService>();
-            var encodeTimeEstimatorMock = new Mock<EncodeTimeEstimator>();
+            var encodeTimeEstimatorMock = new Mock<EncodeTimeEstimatorProcess>();
 
         }
 

@@ -1,6 +1,6 @@
-﻿using Dynamensions.EasyVideoConverter.Core.Helpers;
-using Dynamensions.EasyVideoConverter.Core.Models;
+﻿using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Models.Enums;
+using Dynamensions.EasyVideoConverter.Core.Processes;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Services;
 
-public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTimeEstimator encodeTimeEstimator, ISettingsService settingsService) : ITranscodeService
+public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTimeEstimatorProcess encodeTimeEstimator, ISettingsService settingsService) : ITranscodeService
 {
 
     public async Task TranscodeAsync(QueueItem queueItem, Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback)
@@ -78,7 +78,7 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
                 var parsedTime = TimeSpan.Parse(timeMatch.Groups[1].Value);
                 var percent = parsedTime.TotalSeconds / task.Info.Duration.TotalSeconds;
 
-                var secondsRemaining = EncodeTimeEstimator.EstimateLive(
+                var secondsRemaining = EncodeTimeEstimatorProcess.EstimateLive(
                     parsedTime.TotalSeconds,
                     task.Info.Duration.TotalSeconds,
                     stopwatch.Elapsed.TotalSeconds);

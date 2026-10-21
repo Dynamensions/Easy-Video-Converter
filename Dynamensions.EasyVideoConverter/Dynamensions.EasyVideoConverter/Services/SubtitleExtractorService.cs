@@ -1,5 +1,5 @@
-﻿using Dynamensions.EasyVideoConverter.Core.Helpers;
-using Dynamensions.EasyVideoConverter.Core.Models;
+﻿using Dynamensions.EasyVideoConverter.Core.Models;
+using Dynamensions.EasyVideoConverter.Core.Processes;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Microsoft.Extensions.Logging;
 using System;
@@ -204,7 +204,7 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
                 var parsedTime = TimeSpan.Parse(match.Groups[1].Value);
                 var percent = parsedTime.TotalSeconds / item.Task.Info.Duration.TotalSeconds;
 
-                var secondsRemaining = EncodeTimeEstimator.EstimateLive(
+                var secondsRemaining = EncodeTimeEstimatorProcess.EstimateLive(
                     parsedTime.TotalSeconds,
                     item.Task.Info.Duration.TotalSeconds,
                     stopwatch.Elapsed.TotalSeconds);
