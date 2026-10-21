@@ -51,7 +51,7 @@ public sealed partial class MainWindow : Window
         NavView.SelectionChanged += OnNavigationChanged;
 
 
-        var ffmpegService = App.AppHost.Services.GetRequiredService<IFfmpegBootstrapService>();
+        var ffmpegService = App.AppHost.Services.GetRequiredService<IBootstrapService>();
         var isValidated = ffmpegService.Verify();
 
         if (isValidated)

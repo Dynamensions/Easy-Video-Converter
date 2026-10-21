@@ -57,7 +57,7 @@ public partial class App : Application
                 services.AddSingleton<IClientProfileService, ClientProfileService>();
                 //services.AddSingleton<IDeviceProfileService, DeviceProfileService>();
                 services.AddSingleton<IEncoderProfileService, EncoderProfileService>();
-                services.AddSingleton<IFfmpegBootstrapService, FfmpegBootstrapService>();
+                services.AddSingleton<IBootstrapService, BootstrapService>();
                 services.AddSingleton<IMediaFileAnalyzerService, MediaFileAnalyzerService>();
                 services.AddSingleton<IPickerService, WinUIPickerService>();
                 services.AddSingleton<ISettingsService, SettingsService>();

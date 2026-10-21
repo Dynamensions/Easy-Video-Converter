@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Services;
 
-public class FfmpegBootstrapService : IFfmpegBootstrapService
+public class BootstrapService : IBootstrapService
 {
 
     // BtbN releases claim this build is x86 and x64.
@@ -32,10 +32,10 @@ public class FfmpegBootstrapService : IFfmpegBootstrapService
 
 
     /// <summary>
-    /// Initializes a new <see cref="FfmpegBootstrapService"/>
+    /// Initializes a new <see cref="BootstrapService"/>
     /// </summary>
     /// <param name="settingsService">The <see cref="ISettingsService"/></param>
-    public FfmpegBootstrapService(ISettingsService settingsService, ILogger<FfmpegBootstrapService> logger)
+    public BootstrapService(ISettingsService settingsService, ILogger<BootstrapService> logger)
     {
         // set the ffmpeg directory. This is stored as a read-only string in the settings service.
         _ffmpegDir = settingsService.FfMpegDirectory;

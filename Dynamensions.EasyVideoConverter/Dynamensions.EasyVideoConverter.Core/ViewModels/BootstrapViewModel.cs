@@ -7,7 +7,7 @@ using Dynamensions.EasyVideoConverter.Core.Services;
 
 namespace Dynamensions.EasyVideoConverter.Core.ViewModels
 {
-    public partial class BootstrapViewModel(IFfmpegBootstrapService ffmpegBootstrapService) : ObservableObject
+    public partial class BootstrapViewModel(IBootstrapService ffmpegBootstrapService) : ObservableObject
     {
         private readonly CancellationTokenSource cancellationTokenSource = new();
 

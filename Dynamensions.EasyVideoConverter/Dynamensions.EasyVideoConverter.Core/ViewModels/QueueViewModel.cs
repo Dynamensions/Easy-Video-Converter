@@ -169,8 +169,6 @@ public partial class QueueViewModel : ObservableObject
     }
 
 
-
-
     // =========================================================
     // PROCESS A SINGLE QUEUE ITEM
     // =========================================================
@@ -281,7 +279,7 @@ public partial class QueueViewModel : ObservableObject
             // 6. Completed
             // ---------------------------------------------------------
             item.IsCompleted = true;
-            item.Status = $"Complete;";
+            item.Status = $"Complete";
         }
         catch (OperationCanceledException)
         {
