@@ -4,7 +4,6 @@ using Dynamensions.EasyVideoConverter.Core.Services;
 using Dynamensions.EasyVideoConverter.Core.ViewModels;
 using Dynamensions.EasyVideoConverter.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Serilog;
@@ -16,8 +15,10 @@ namespace Dynamensions.EasyVideoConverter;
 
 public partial class App : Application
 {
-    public static IHost AppHost { get; private set; } = default!;
-    public static Window MainWindow { get; private set; } = default!;
+    public IServiceProvider Services { get; }
+    public Window Window { get; private set; } = default!;
+
+    public new static App Current => (App)Application.Current;
 
     public App()
     {
@@ -42,60 +43,66 @@ public partial class App : Application
                 shared: true)
             .CreateLogger();
 
+        Services = ConfigureServices();
 
-        AppHost = Host.CreateDefaultBuilder()
-            .ConfigureLogging(logging =>
-            {
-                logging.ClearProviders();
+    }
 
-                logging.AddDebug();     // <-- This adds Microsoft.Extensions.Logging.Debug
-                logging.AddSerilog();   // <-- This keeps your Serilog file logging
-            })
-            .ConfigureServices((context, services) =>
-            {
-                // Services
-                services.AddSingleton<IClientProfileService, ClientProfileService>();
-                //services.AddSingleton<IDeviceProfileService, DeviceProfileService>();
-                services.AddSingleton<IEncoderProfileService, EncoderProfileService>();
-                services.AddSingleton<IBootstrapService, BootstrapService>();
-                services.AddSingleton<IMediaFileAnalyzerService, MediaFileAnalyzerService>();
-                services.AddSingleton<IPickerService, WinUIPickerService>();
-                services.AddSingleton<ISettingsService, SettingsService>();
-                services.AddSingleton<ISubtitleExtractorService, SubtitleExtractorService>();
-                services.AddSingleton<ISystemService, SystemService>();
-                services.AddSingleton<ITranscodeQueueService, TranscodeQueueService>();
-                services.AddSingleton<ITranscodeService, TranscodeService>();
+    private static IServiceProvider ConfigureServices()
+    {
+        var services = new ServiceCollection();
 
-                // processes
-                services.AddSingleton<SmartDecisionProcess>();
-                services.AddSingleton<EncodeTimeEstimatorProcess>();
+        // Logging
+        services.AddLogging(config =>
+        {
+            config.ClearProviders();
+            config.AddDebug();
+            config.AddSerilog();
+        });
+
+        // Services
+        services.AddSingleton<IClientProfileService, ClientProfileService>();
+        //services.AddSingleton<IDeviceProfileService, DeviceProfileService>();
+        services.AddSingleton<IEncoderProfileService, EncoderProfileService>();
+        services.AddSingleton<IBootstrapService, BootstrapService>();
+        services.AddSingleton<IMediaFileAnalyzerService, MediaFileAnalyzerService>();
+        services.AddSingleton<IPickerService, WinUIPickerService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<ISubtitleExtractorService, SubtitleExtractorService>();
+        services.AddSingleton<ISystemService, SystemService>();
+        services.AddSingleton<ITranscodeQueueService, TranscodeQueueService>();
+        services.AddSingleton<ITranscodeService, TranscodeService>();
+
+        // processes
+        services.AddSingleton<SmartDecisionProcess>();
+        services.AddSingleton<EncodeTimeEstimatorProcess>();
 
 
-                // helpers
-                services.AddSingleton<EncodeTimeEstimatorProcess>();
-                services.AddSingleton<SmartDecisionComplianceValidator>();
+        // helpers
+        services.AddSingleton<EncodeTimeEstimatorProcess>();
+        services.AddSingleton<SmartDecisionComplianceValidator>();
 
-                // ViewModels
-                services.AddTransient<BootstrapViewModel>();
-                services.AddTransient<MainViewModel>();
-                services.AddTransient<ProfileEditorViewModel>();
-                services.AddTransient<QueueViewModel>();
-                services.AddTransient<SettingsViewModel>();
+        // ViewModels
+        services.AddTransient<BootstrapViewModel>();
+        services.AddTransient<MainViewModel>();
+        services.AddTransient<ProfileEditorViewModel>();
+        services.AddTransient<QueueViewModel>();
+        services.AddTransient<SettingsViewModel>();
 
-                // Views
-                services.AddTransient<Views.BootstrapPage>();
-                services.AddTransient<Views.MainPage>();
-                services.AddTransient<Views.QueuePage>();
-                services.AddTransient<Views.SettingsPage>();
-                services.AddTransient<Views.ProfileEditorPage>();
-            })
-            .Build();
+        // Views
+        services.AddTransient<Views.BootstrapPage>();
+        services.AddTransient<Views.MainPage>();
+        services.AddTransient<Views.QueuePage>();
+        services.AddTransient<Views.SettingsPage>();
+        services.AddTransient<Views.ProfileEditorPage>();
+
+
+        return services.BuildServiceProvider();
     }
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         // load the profiles.
-        var clientProfileService = App.AppHost.Services.GetRequiredService<IClientProfileService>();
+        var clientProfileService = App.Current.Services.GetRequiredService<IClientProfileService>();
         clientProfileService.LoadInternalProfiles();
 
 
@@ -110,8 +117,8 @@ public partial class App : Application
 
         base.OnLaunched(args);
 
-        MainWindow = new MainWindow();
-        MainWindow.Activate();
+        App.Current.Window = new MainWindow();
+        App.Current.Window.Activate();
     }
 
 

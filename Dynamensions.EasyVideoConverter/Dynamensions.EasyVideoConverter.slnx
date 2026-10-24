@@ -4,6 +4,12 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Project Path="App1/App1.csproj" Id="16ed0d23-72ee-46b5-a77f-fb7f5d13b928">
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy />
+  </Project>
   <Project Path="Dynamensions.EasyVideoConverter.Core/Dynamensions.EasyVideoConverter.Core.csproj" Id="c86ffc01-9d93-435b-a672-7a32b506a21c">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />

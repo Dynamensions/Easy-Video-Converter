@@ -18,6 +18,6 @@ public sealed partial class BootstrapPage : Page
     {
         InitializeComponent();
 
-        DataContext = viewModel = App.AppHost.Services.GetRequiredService<BootstrapViewModel>();
+        DataContext = viewModel = App.Current.Services.GetRequiredService<BootstrapViewModel>();
     }
 }

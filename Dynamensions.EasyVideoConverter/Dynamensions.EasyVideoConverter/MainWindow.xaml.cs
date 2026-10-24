@@ -43,7 +43,7 @@ public sealed partial class MainWindow : Window
             if (message.isSuccessful)
             {
                 NavView.IsPaneVisible = true;
-                ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<QueuePage>().GetType());
+                ContentFrame.Navigate(App.Current.Services.GetRequiredService<QueuePage>().GetType());
             }
         });
 
@@ -51,17 +51,17 @@ public sealed partial class MainWindow : Window
         NavView.SelectionChanged += OnNavigationChanged;
 
 
-        var ffmpegService = App.AppHost.Services.GetRequiredService<IBootstrapService>();
+        var ffmpegService = App.Current.Services.GetRequiredService<IBootstrapService>();
         var isValidated = ffmpegService.Verify();
 
         if (isValidated)
         {
-            ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<QueuePage>().GetType());
+            ContentFrame.Navigate(App.Current.Services.GetRequiredService<QueuePage>().GetType());
         }
         else
         {
             NavView.IsPaneVisible = false;
-            ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<BootstrapPage>().GetType());
+            ContentFrame.Navigate(App.Current.Services.GetRequiredService<BootstrapPage>().GetType());
         }
     }
 
@@ -69,7 +69,7 @@ public sealed partial class MainWindow : Window
     {
         if (args.SelectedItem is NavigationViewItem item)
         {
-            var services = App.AppHost.Services;
+            var services = App.Current.Services;
 
             switch (item.Tag)
             {

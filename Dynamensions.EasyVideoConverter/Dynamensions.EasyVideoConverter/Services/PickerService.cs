@@ -23,7 +23,7 @@ public sealed partial class WinUIPickerService(ILogger<WinUIPickerService> logge
         var picker = new FileOpenPicker();
         picker.FileTypeFilter.Add("*");
 
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.Current.Window);
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
         StorageFile? file = await picker.PickSingleFileAsync();
@@ -61,7 +61,7 @@ public sealed partial class WinUIPickerService(ILogger<WinUIPickerService> logge
         picker.FileTypeFilter.Add("*");
         picker.SuggestedStartLocation = PickerLocationId.ComputerFolder;
 
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.Current.Window);
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
         StorageFolder? folder = await picker.PickSingleFolderAsync();
@@ -87,7 +87,7 @@ public sealed partial class WinUIPickerService(ILogger<WinUIPickerService> logge
         picker.FileTypeFilter.Add("*");
         picker.SuggestedStartLocation = PickerLocationId.ComputerFolder;
 
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.Current.Window);
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
         StorageFolder? folder = await picker.PickSingleFolderAsync();

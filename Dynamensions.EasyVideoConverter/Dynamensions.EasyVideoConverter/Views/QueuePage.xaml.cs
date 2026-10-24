@@ -17,7 +17,7 @@ namespace Dynamensions.EasyVideoConverter.Views
         {
             InitializeComponent();
             QueueViewModel viewModel;
-            DataContext = viewModel = App.AppHost.Services.GetRequiredService<QueueViewModel>();
+            DataContext = viewModel = App.Current.Services.GetRequiredService<QueueViewModel>();
 
             DispatcherTimer timer = new() { Interval = System.TimeSpan.FromSeconds(1) };
             timer.Tick += (_, _) => viewModel.UpdateElapsedTime();
@@ -25,7 +25,7 @@ namespace Dynamensions.EasyVideoConverter.Views
 
             viewModel.ProgressCallbackDispatcher = p =>
             {
-                App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+                App.Current.Window.DispatcherQueue.TryEnqueue(() =>
                 {
                     p.item.Progress = p.ProgressValue * 100;
                     p.item.EstimatedTimeRemaining = System.TimeSpan.FromSeconds(p.secondsRemaining);
@@ -36,7 +36,7 @@ namespace Dynamensions.EasyVideoConverter.Views
 
             viewModel.SubtitleCallback = p =>
             {
-                App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+                App.Current.Window.DispatcherQueue.TryEnqueue(() =>
                 {
                     p.item.Status = $"Extracting external subtitles [{p.Current} of {p.Total}] - [{p.SubtitleTrack.Title}({p.SubtitleTrack.Codec})] ({p.Current}/{p.Total})";
                 });

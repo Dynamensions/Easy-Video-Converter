@@ -37,7 +37,6 @@
         <TrimmerRootAssembly Include="System.Management" />
     </ItemGroup>
 
-
     <!--
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
     Tools extension to be activated for this project even if the Windows App SDK Nuget
@@ -47,66 +46,20 @@
         <ProjectCapability Include="Msix" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.13" />
         <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
         <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
-        <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.1" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.13" />
+        <PackageReference Include="SharpCompress" Version="0.50.5" />
         <PackageReference Include="Serilog" Version="4.4.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-        <PackageReference Include="SharpCompress" Version="0.50.5" />
-        <PackageReference Include="System.Management" Version="10.0.13" />
-    </ItemGroup>
-    <ItemGroup>
-        <Page Update="Controls\DecisionSummaryControl.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-        <Page Update="Controls\DecisionSummaryLabel.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-        <Page Update="Views\ProfileEditorPage.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-    </ItemGroup>
-    <ItemGroup>
-        <Page Update="Views\MainPage.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-    </ItemGroup>
-    <ItemGroup>
-        <Page Update="Views\QueuePage.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-    </ItemGroup>
-    <ItemGroup>
-        <Page Update="Views\SettingsPage.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-    </ItemGroup>
-    <ItemGroup>
-        <Page Update="Views\MainWindow.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </Page>
-    </ItemGroup>
-    <ItemGroup>
-        <TrimmerRootAssembly Include="System.Management" />
-        <LinkerDescriptor Include="ILLink.xml" />
-    </ItemGroup>
+		<PackageReference Include="System.Management" Version="10.0.13" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.1" />
+	</ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Dynamensions.EasyVideoConverter.Core\Dynamensions.EasyVideoConverter.Core.csproj" />
     </ItemGroup>
-    <ItemGroup>
-      <Page Update="Views\BootstrapPage.xaml">
-        <Generator>MSBuild:Compile</Generator>
-      </Page>
-    </ItemGroup>
-    <PropertyGroup>
-        <TrimUnusedDependenciesDuringPublish>false</TrimUnusedDependenciesDuringPublish>
-    </PropertyGroup>
-
-
 
     <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
@@ -123,15 +76,13 @@
         <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
         <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
         <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-        <ApplicationIcon>app.ico</ApplicationIcon>
-        <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
         <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-        <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+        <PackageCertificateThumbprint>02E8FEE8CB26B9F7192BE15C23808A262CDBCA8E</PackageCertificateThumbprint>
         <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
         <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
-        <GenerateTestArtifacts>True</GenerateTestArtifacts>
-        <AppxBundle>Auto</AppxBundle>
+        <GenerateTestArtifacts>False</GenerateTestArtifacts>
+        <AppxBundle>Never</AppxBundle>
         <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-        <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     </PropertyGroup>
 </Project>

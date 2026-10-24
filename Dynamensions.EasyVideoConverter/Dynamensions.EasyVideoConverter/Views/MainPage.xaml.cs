@@ -9,6 +9,6 @@ public sealed partial class MainPage : Page
     public MainPage()
     {
         InitializeComponent();
-        DataContext = App.AppHost.Services.GetRequiredService<MainViewModel>();
+        DataContext = App.Current.Services.GetRequiredService<MainViewModel>();
     }
 }
