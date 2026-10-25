@@ -1,6 +1,7 @@
 ﻿using Dynamensions.EasyVideoConverter.Core.Helpers;
 using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+using Dynamensions.EasyVideoConverter.Core.Processes;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Dynamensions.EasyVideoConverter.Core.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +28,7 @@ namespace Dynamensions.EasyVideoConverter.Tests.ViewModels
         private readonly Mock<ISettingsService> _settingsMock = new();
         private readonly Mock<IPerformanceBucketService> _performanceBucketServiceMock = new();
 
-        private readonly Mock<EncodeTimeEstimator> _encoderEstimatorMock = new();
+        private readonly Mock<EncodeTimeEstimatorProcess> _encoderEstimatorMock = new();
         private readonly Mock<SmartDecisionComplianceValidator> _complianceMock = new();
 
         public QueueViewModelTests()
@@ -67,7 +68,7 @@ namespace Dynamensions.EasyVideoConverter.Tests.ViewModels
             services.AddSingleton<ISystemService>(_systemMock.Object);
             services.AddSingleton<ISettingsService>(_settingsMock.Object);
             services.AddSingleton<IPerformanceBucketService>(_performanceBucketServiceMock.Object);
-            services.AddSingleton<EncodeTimeEstimator>();
+            services.AddSingleton<EncodeTimeEstimatorProcess>();
             services.AddSingleton<SmartDecisionComplianceValidator>();
 
             services.AddSingleton<QueueViewModel>();

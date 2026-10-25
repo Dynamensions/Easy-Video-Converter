@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
 using Dynamensions.EasyVideoConverter.Core.Messages;
-using Dynamensions.EasyVideoConverter.Core.Services;
 using Dynamensions.EasyVideoConverter.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI;
@@ -43,33 +42,22 @@ public sealed partial class MainWindow : Window
             if (message.isSuccessful)
             {
                 NavView.IsPaneVisible = true;
-                ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<QueuePage>().GetType());
+                ContentFrame.Navigate(App.Current.Services.GetRequiredService<QueuePage>().GetType());
             }
         });
 
 
         NavView.SelectionChanged += OnNavigationChanged;
+        NavView.IsPaneVisible = false;
+        ContentFrame.Navigate(App.Current.Services.GetRequiredService<BootstrapPage>().GetType());
 
-
-        var ffmpegService = App.AppHost.Services.GetRequiredService<IFfmpegBootstrapService>();
-        var isValidated = ffmpegService.Verify();
-
-        if (isValidated)
-        {
-            ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<QueuePage>().GetType());
-        }
-        else
-        {
-            NavView.IsPaneVisible = false;
-            ContentFrame.Navigate(App.AppHost.Services.GetRequiredService<BootstrapPage>().GetType());
-        }
     }
 
     private void OnNavigationChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if (args.SelectedItem is NavigationViewItem item)
         {
-            var services = App.AppHost.Services;
+            var services = App.Current.Services;
 
             switch (item.Tag)
             {

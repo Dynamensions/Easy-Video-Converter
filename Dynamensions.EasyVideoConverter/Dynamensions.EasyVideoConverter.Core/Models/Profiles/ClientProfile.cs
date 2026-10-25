@@ -100,7 +100,7 @@ public class ClientProfile
     // ---------------------------------------------------------
     public bool CanDirectPlay(MediaInfo info)
     {
-        if (!DirectPlayContainers.Contains(info.NormalizedContainer))
+        if (!DirectPlayContainers.Contains(info.Container))
             return false;
 
         if (!DirectPlayVideoCodecs.Contains(info.VideoCodec))

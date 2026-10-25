@@ -1,5 +1,5 @@
-﻿using Dynamensions.EasyVideoConverter.Core.Helpers;
-using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+﻿using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+using Dynamensions.EasyVideoConverter.Core.Processes;
 
 namespace Dynamensions.EasyVideoConverter.Core.Services;
 

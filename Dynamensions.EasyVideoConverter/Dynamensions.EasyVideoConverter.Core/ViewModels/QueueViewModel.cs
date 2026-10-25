@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Dynamensions.EasyVideoConverter.Core.Helpers;
 using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Models.Enums;
 using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+using Dynamensions.EasyVideoConverter.Core.Processes;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
@@ -68,14 +70,15 @@ public partial class QueueViewModel : ObservableObject
     private readonly IMediaFileAnalyzerService _mediaFileAnalyzerService;
     private readonly ITranscodeService _transcodeService;
     private readonly ISubtitleExtractorService _subtitleExtractorService;
-    private readonly ISmartDecisionService _smartDecisionService;
     private readonly IEncoderProfileService _serverProfileService;
     private readonly IClientProfileService _clientProfileService;
     private readonly IPickerService _pickerService;
-    private readonly ISystemService _systemService;
+    private readonly IEncoderCapabilitiesService _encoderCapabilitiesService;
     private readonly ISettingsService _settingsService;
-    private readonly EncodeTimeEstimator _encodeTimeEstimator;
+    private readonly EncodeTimeEstimatorProcess _encodeTimeEstimator;
     private readonly SmartDecisionComplianceValidator _smartDecisionComplianceValidator;
+    private readonly SmartDecisionProcess _smartDecisionProcess;
+
     #endregion
 
     #region Constructor
@@ -91,15 +94,15 @@ public partial class QueueViewModel : ObservableObject
         ISubtitleExtractorService subtitleExtractorService,
 
         // Decision & Profile Services
-        ISmartDecisionService smartDecisionService,
+        SmartDecisionProcess smartDecisionProcess,
         IEncoderProfileService serverProfileService,
         IClientProfileService clientProfileService,
+        IEncoderCapabilitiesService encoderCapabilitiesService,
 
         // Utilities & Configuration
-        ISystemService systemService,
         IPickerService pickerService,
         ISettingsService settingsService,
-        EncodeTimeEstimator encodeTimeEstimator,
+        EncodeTimeEstimatorProcess encodeTimeEstimator,
         SmartDecisionComplianceValidator smartDecisionComplianceValidator)
     {
         _logger = logger;
@@ -107,18 +110,17 @@ public partial class QueueViewModel : ObservableObject
         _mediaFileAnalyzerService = mediaFileAnalyzerService;
         _transcodeService = transcodeService;
         _subtitleExtractorService = subtitleExtractorService;
-        _smartDecisionService = smartDecisionService;
+        _smartDecisionProcess = smartDecisionProcess;
         _serverProfileService = serverProfileService;
         _clientProfileService = clientProfileService;
-        _systemService = systemService;
+        _encoderCapabilitiesService = encoderCapabilitiesService;
         _pickerService = pickerService;
         _settingsService = settingsService;
         _encodeTimeEstimator = encodeTimeEstimator;
         _smartDecisionComplianceValidator = smartDecisionComplianceValidator;
 
         // Load encoder profiles
-        var caps = _systemService.GetEncoderCapabilities();
-        foreach (var profile in _serverProfileService.GetAvailableProfiles(caps))
+        foreach (var profile in _serverProfileService.GetAvailableProfiles(_encoderCapabilitiesService.EncoderCapabilities))
             EncoderProfiles.Add(profile);
 
         // Load client profiles
@@ -131,23 +133,32 @@ public partial class QueueViewModel : ObservableObject
                 Profiles = [.. group.Select(x => x.Value).OrderBy(x => x.Name)]
             });
 
-        // Set default selections
-        SelectedEncoderProfile = EncoderProfiles.FirstOrDefault(x => x.Name == _settingsService.Settings.SelectedEncoderProfileName) ?? EncoderProfiles.First();
-        SelectedClientProfile = ClientProfiles
-            .SelectMany(x => x.Profiles)
-            .Where(x => x.Name == settingsService.Settings.SelectedClientProfileName)
-            .FirstOrDefault()
-            ??
-            ClientProfiles.SelectMany(x => x.Profiles).First();
-
-        IsProfileSelectionEnabled = true;
-
         settingsService.SettingsChanged += () =>
         {
             UpdateDecisionForAllItems();
         };
+
+        WeakReferenceMessenger.Default.Register<Messages.ItemRemovedMessage>(this, (reciever, message) =>
+     {
+         RemoveItemCommand.Execute(message.QueueItem);
+     });
     }
     #endregion
+
+    public async Task InitializeAsync()
+    {
+        IsProfileSelectionEnabled = true;
+
+        // Set default selections
+        SelectedEncoderProfile = EncoderProfiles.FirstOrDefault(x => x.Name == _settingsService.Settings.SelectedEncoderProfileName) ?? EncoderProfiles.First();
+        SelectedClientProfile = ClientProfiles
+            .SelectMany(x => x.Profiles)
+            .Where(x => x.Name == _settingsService.Settings.SelectedClientProfileName)
+            .FirstOrDefault() ??
+            ClientProfiles.SelectMany(x => x.Profiles).First();
+
+        IsProfileSelectionEnabled = true;
+    }
 
     public void UpdateElapsedTime()
     {
@@ -165,8 +176,6 @@ public partial class QueueViewModel : ObservableObject
         UpdateEstimatedConversionTime();
         EstimatedDateTimeCompleted = DateTime.Now + EstimatedTimeRemaining;
     }
-
-
 
 
     // =========================================================
@@ -239,7 +248,7 @@ public partial class QueueViewModel : ObservableObject
                     ProgressCallbackDispatcher?.Invoke((item, d, 0, 0, 0));
                 };
 
-                await _systemService.CopyFileAsync(item.File.Path, item.Task.OutputPath, true, copyProgress, item.Cancellation.Token);
+                //await _systemService.CopyFileAsync(item.File.Path, item.Task.OutputPath, true, copyProgress, item.Cancellation.Token);
             }
             else
             {
@@ -279,7 +288,7 @@ public partial class QueueViewModel : ObservableObject
             // 6. Completed
             // ---------------------------------------------------------
             item.IsCompleted = true;
-            item.Status = $"Complete;";
+            item.Status = $"Complete";
         }
         catch (OperationCanceledException)
         {
@@ -426,6 +435,8 @@ public partial class QueueViewModel : ObservableObject
 
     partial void OnSelectedClientProfileChanged(ClientProfile value)
     {
+        if (value == null) return;
+
         if (value.Name != _settingsService.Settings.SelectedClientProfileName)
         {
             _settingsService.Settings.SelectedClientProfileName = value?.Name ?? "Roku";
@@ -454,11 +465,11 @@ public partial class QueueViewModel : ObservableObject
         var info = await _mediaFileAnalyzerService.AnalyzeAsync(filePath, CancellationToken.None);
 
         // 3. SmartDecision
-        var decision = _smartDecisionService.Decide(SelectedEncoderProfile, SelectedClientProfile, info);
+        var decision = _smartDecisionProcess.UpdateSmartDecision(SelectedEncoderProfile, SelectedClientProfile, info);
 
-        // 4. Estimate encoding time
-        var key = EncodeTimeEstimator.CreatePerformanceKey(info, decision);
-        var conversionSeconds = _encodeTimeEstimator.EstimatePreEncode(key, info.Duration.TotalSeconds);
+        // 4. Estimate encoding time (temporarily disabling until pre-encode estimate is stabilized).
+        //var key = EncodeTimeEstimatorProcess.CreatePerformanceKey(info, decision);
+        //var conversionSeconds = _encodeTimeEstimator.EstimatePreEncode(key, info.Duration.TotalSeconds);
 
         // 5. build the task.
         var task = BuildTask(mediaFile, info, SelectedEncoderProfile, decision);
@@ -476,11 +487,11 @@ public partial class QueueViewModel : ObservableObject
 
         foreach (var item in _queue.Items.Where(x => x.IsRunning == false && x.IsConverted == false))
         {
-            _smartDecisionService.Decide(SelectedEncoderProfile, SelectedClientProfile, item.Info, item.Task.Decision);
+            _smartDecisionProcess.UpdateSmartDecision(SelectedEncoderProfile, SelectedClientProfile, item.Info, item.Task.Decision);
 
             // estimate conversion time
             // 1. Build temporary PerformanceKey for estimation
-            var perfKey = EncodeTimeEstimator.CreatePerformanceKey(item.Info, item.Task.Decision);
+            var perfKey = EncodeTimeEstimatorProcess.CreatePerformanceKey(item.Info, item.Task.Decision);
 
             // 2. Estimate encoding time
             var secondsRemaining = _encodeTimeEstimator.EstimatePreEncode(perfKey, item.Info.Duration.TotalSeconds);

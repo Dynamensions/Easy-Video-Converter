@@ -7,7 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:Dynamensions.EasyVideoConverter.Core.ViewModels"
     mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance vm:BootstrapViewModel}">
+    d:DataContext="{d:DesignInstance vm:BootstrapViewModel}"
+    Loaded="Page_Loaded">
 
     <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
         <Grid CornerRadius="12"
@@ -35,7 +36,7 @@
 
                 <!-- Confirm Dependencies -->
                 <StackPanel Spacing="20"
-                            Visibility="{Binding IsConfirmingPrepare, Converter={StaticResource BoolToVisibilityConverter}}">
+                            Visibility="{x:Bind viewModel.IsConfirmingPrepare, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
 
                     <TextBlock Text="Missing Application Dependencies"
                                FontSize="22"
@@ -46,7 +47,7 @@
                                TextWrapping="WrapWholeWords"
                                TextAlignment="Center"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                        Before you can use EasyVideoConverter, required components must be downloaded.
+                        Before you can use Easy Video Converter, required components must be downloaded.
                     </TextBlock>
 
                     <Grid ColumnSpacing="12">
@@ -58,14 +59,14 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <Button Command="{Binding PrepareApplicationCommand}"
+                        <Button Command="{x:Bind viewModel.PrepareApplicationCommand}"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Content="Download Dependencies"
                                 HorizontalAlignment="Center"
                                 Width="200"
                                 MinHeight="40"/>
 
-                        <Button Command="{Binding CancelCommand}"
+                        <Button Command="{x:Bind viewModel.CancelCommand}"
                                 Style="{StaticResource ButtonRevealStyle}"
                                 Content="Cancel and Exit"
                                 Width="200"
@@ -77,7 +78,7 @@
 
                 <!-- Preparing -->
                 <StackPanel Spacing="20" Width="600"
-                            Visibility="{Binding IsConfirmingPrepare, Converter={StaticResource BoolToVisibilityInvertedConverter}}">
+                            Visibility="{x:Bind viewModel.IsConfirmingPrepare, Mode=OneWay, Converter={StaticResource BoolToVisibilityInvertedConverter}}">
 
                     <TextBlock Text="Preparing Application"
                                FontSize="22"
@@ -86,9 +87,10 @@
                     <Border Background="{ThemeResource SubtleFillColorTransparentBrush}"
                             Padding="12"
                             CornerRadius="6">
-                        <TextBlock Text="{Binding StatusMessage}"
+                        <TextBlock Text="{x:Bind viewModel.StatusMessage, Mode=OneWay}"
                                    FontFamily="Cascadia Mono"
                                    FontSize="12"
+                                   Height="26"
                                    TextWrapping="Wrap"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     </Border>
@@ -98,10 +100,10 @@
                                Margin="0,8,0,0"/>
                     
                     <ProgressBar Height="10"
-                                 Value="{Binding Percent}"
-                                 Visibility="{Binding IsPercentVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                 Value="{x:Bind viewModel.Percent, Mode=OneWay}"
+                                 Visibility="{x:Bind viewModel.IsPercentVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                    <TextBlock Text="{Binding PercentMessage}"
+                    <TextBlock Text="{x:Bind viewModel.PercentMessage, Mode=OneWay}"
                                FontFamily="Cascadia Mono"
                                FontSize="12"
                                TextAlignment="Right"

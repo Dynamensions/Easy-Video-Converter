@@ -2,7 +2,7 @@
 
 namespace Dynamensions.EasyVideoConverter.Core.Services;
 
-public interface IFfmpegBootstrapService
+public interface IBootstrapService
 {
     /// <summary>
     /// Verify all dependencies are present

@@ -11,7 +11,8 @@
     xmlns:controls="using:Dynamensions.EasyVideoConverter.Controls"
     mc:Ignorable="d"
     x:Name="RootPage"
-    d:DataContext="{d:DesignInstance vm:QueueViewModel}">
+    d:DataContext="{d:DesignInstance vm:QueueViewModel}"
+    Loaded="RootPage_Loaded">
     <Page.Resources>
 
         <!-- COLOR CONVERTER -->
@@ -109,10 +110,10 @@
                                FontWeight="SemiBold"
                                Margin="0,0,0,4"/>
 
-                        <ComboBox ItemsSource="{Binding EncoderProfiles}"
-                                  SelectedItem="{Binding SelectedEncoderProfile, Mode=TwoWay}"
+                        <ComboBox ItemsSource="{x:Bind viewModel.EncoderProfiles}"
+                                  SelectedItem="{x:Bind viewModel.SelectedEncoderProfile, Mode=TwoWay}"
                                   HorizontalAlignment="Stretch"
-                                  IsEnabled="{Binding IsProfileSelectionEnabled}">
+                                  IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}">
 
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="profileModels:EncoderProfile">
@@ -155,8 +156,8 @@
                         <ComboBox Width="360"
                                   ItemContainerStyleSelector="{StaticResource ComboBoxContainerStyleSelector}"
                                   ItemTemplateSelector="{StaticResource ComboBoxItemTemplateSelector}"
-                                  ItemsSource="{Binding ClientProfiles, Mode=OneWay, Converter={StaticResource GroupInfoListToFlatCollectionConverter}}"
-                                  SelectedItem="{Binding SelectedClientProfile, Mode=TwoWay}"/>
+                                  ItemsSource="{x:Bind viewModel.ClientProfiles, Converter={StaticResource GroupInfoListToFlatCollectionConverter}}"
+                                  SelectedItem="{x:Bind viewModel.SelectedClientProfile, Mode=TwoWay}"/>
                     </StackPanel>
 
 
@@ -165,8 +166,8 @@
                            FontSize="16"
                            FontWeight="SemiBold"
                            Margin="0,0,0,4"
-                           Visibility="{Binding IsConverting, Converter={StaticResource BoolToVisibilityConverter}}"
-                           Text="{Binding ElapsedTime, Converter={StaticResource TimeSpanToStringConverter}}">
+                           Visibility="{x:Bind viewModel.IsConverting, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                           Text="{x:Bind viewModel.ElapsedTime, Mode=OneWay, Converter={StaticResource TimeSpanToStringConverter}}">
                     </TextBlock>
                 </StackPanel>
 
@@ -175,9 +176,9 @@
 
             <!-- TOOLBAR -->
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <Button Command="{Binding AddFileCommand}"
+                <Button Command="{x:Bind viewModel.AddFileCommand}"
                         HorizontalAlignment="Right"
-                        IsEnabled="{Binding IsProfileSelectionEnabled, Mode=OneWay}"
+                        IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
                         Width="140">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE8A5;" />
@@ -185,9 +186,9 @@
                     </StackPanel>
                 </Button>
 
-                <Button Command="{Binding AddFolderCommand}"
+                <Button Command="{x:Bind viewModel.AddFolderCommand}"
                         HorizontalAlignment="Right"
-                        IsEnabled="{Binding IsProfileSelectionEnabled, Mode=OneWay}"
+                        IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
                         Width="140">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE8B7;" />
@@ -195,9 +196,9 @@
                     </StackPanel>
                 </Button>
 
-                <Button Command="{Binding StartQueueCommand}"
+                <Button Command="{x:Bind viewModel.StartQueueCommand}"
                         Style="{StaticResource AccentButtonStyle}"
-                        IsEnabled="{Binding IsProfileSelectionEnabled, Mode=OneWay}"
+                        IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
                         Width="160"
                         Margin="24,0,0,0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
@@ -206,8 +207,8 @@
                     </StackPanel>
                 </Button>
 
-                <Button Command="{Binding ClearCompletedCommand}"
-                        IsEnabled="{Binding IsProfileSelectionEnabled, Mode=OneWay}"
+                <Button Command="{x:Bind viewModel.ClearCompletedCommand}"
+                        IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
                         Width="160">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE73E;" />
@@ -215,9 +216,9 @@
                     </StackPanel>
                 </Button>
 
-                <Button Command="{Binding ClearAllCommand}"
+                <Button Command="{x:Bind viewModel.ClearAllCommand}"
                         Style="{StaticResource DefaultButtonStyle}"
-                        IsEnabled="{Binding IsProfileSelectionEnabled, Mode=OneWay}"
+                        IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
                         Width="160">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE75C;" />
@@ -226,8 +227,8 @@
                 </Button>
 
                 <CheckBox Content="Auto Clear Completed"
-                          IsChecked="{Binding AutoClearCompleted, Mode=TwoWay}"
-                          IsEnabled="{Binding IsProfileSelectionEnabled, Mode=OneWay}"
+                          IsChecked="{x:Bind viewModel.AutoClearCompleted, Mode=TwoWay}"
+                          IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
                           VerticalAlignment="Center">
                 </CheckBox>
             </StackPanel>
@@ -237,35 +238,35 @@
                 <Border Background="#4C6EF5" Padding="6,3" CornerRadius="6">
                     <TextBlock FontWeight="SemiBold" Foreground="White">
                         <Run Text=" Total "/>
-                        <Run Text="{Binding TotalItems, Mode=OneWay}" />
+                        <Run Text="{x:Bind viewModel.TotalItems, Mode=OneWay}" />
                     </TextBlock>
                 </Border>
 
                 <Border Background="#2F9E44" Padding="6,3" CornerRadius="6">
                     <TextBlock FontWeight="SemiBold" Foreground="White">
                         <Run Text=" Completed "/>
-                        <Run Text="{Binding CompletedItems, Mode=OneWay}" />
+                        <Run Text="{x:Bind viewModel.CompletedItems, Mode=OneWay}" />
                     </TextBlock>
                 </Border>
 
                 <Border Background="#0B7285" Padding="6,3" CornerRadius="6">
                     <TextBlock FontWeight="SemiBold" Foreground="White">
                         <Run Text=" Running "/>
-                        <Run Text="{Binding RunningItems, Mode=OneWay}" />
+                        <Run Text="{x:Bind viewModel.RunningItems, Mode=OneWay}" />
                     </TextBlock>
                 </Border>
 
                 <Border Background="#F59F00" Padding="6,3" CornerRadius="6">
                     <TextBlock FontWeight="SemiBold" Foreground="White">
                         <Run Text=" Pending "/>
-                        <Run Text="{Binding PendingItems, Mode=OneWay}" />
+                        <Run Text="{x:Bind viewModel.PendingItems, Mode=OneWay}" />
                     </TextBlock>
                 </Border>
 
                 <Border Background="#D6336C" Padding="6,3" CornerRadius="6">
                     <TextBlock FontWeight="SemiBold" Foreground="White">
                         <Run Text=" Failed "/>
-                        <Run Text="{Binding FailedItems, Mode=OneWay}" />
+                        <Run Text="{x:Bind viewModel.FailedItems, Mode=OneWay}" />
                     </TextBlock>
                 </Border>
             </StackPanel>
@@ -274,7 +275,7 @@
 
         <!-- QUEUE LIST -->
         <ScrollView Grid.Row="1" Margin="0,16">
-            <ItemsRepeater ItemsSource="{Binding Items}">
+            <ItemsRepeater ItemsSource="{x:Bind viewModel.Items}">
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate x:DataType="models:QueueItem">
 
@@ -365,13 +366,12 @@
                                         </Border>
                                         
                                         <!-- REMOVE BUTTON -->
-                                        <Button Command="{Binding DataContext.RemoveItemCommand, ElementName=RootPage}"
-                                            CommandParameter="{x:Bind}"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            ToolTipService.ToolTip="Remove from queue"
-                                            HorizontalAlignment="Right"
-                                            Margin="12,0,0,0">
+                                        <Button Command="{x:Bind RemoveItemCommand}"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                ToolTipService.ToolTip="Remove from queue"
+                                                HorizontalAlignment="Right"
+                                                Margin="12,0,0,0">
                                             <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE74D;" />
                                         </Button>
                                     </StackPanel>
