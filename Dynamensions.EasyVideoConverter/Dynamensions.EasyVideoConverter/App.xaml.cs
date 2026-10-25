@@ -61,14 +61,13 @@ public partial class App : Application
 
         // Services
         services.AddSingleton<IClientProfileService, ClientProfileService>();
-        //services.AddSingleton<IDeviceProfileService, DeviceProfileService>();
         services.AddSingleton<IEncoderProfileService, EncoderProfileService>();
+        services.AddSingleton<IEncoderCapabilitiesService, EncoderCapabilitiesService>();
         services.AddSingleton<IBootstrapService, BootstrapService>();
         services.AddSingleton<IMediaFileAnalyzerService, MediaFileAnalyzerService>();
         services.AddSingleton<IPickerService, WinUIPickerService>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<ISubtitleExtractorService, SubtitleExtractorService>();
-        services.AddSingleton<ISystemService, SystemService>();
         services.AddSingleton<ITranscodeQueueService, TranscodeQueueService>();
         services.AddSingleton<ITranscodeService, TranscodeService>();
 
@@ -83,14 +82,12 @@ public partial class App : Application
 
         // ViewModels
         services.AddTransient<BootstrapViewModel>();
-        services.AddTransient<MainViewModel>();
         services.AddTransient<ProfileEditorViewModel>();
         services.AddTransient<QueueViewModel>();
         services.AddTransient<SettingsViewModel>();
 
         // Views
         services.AddTransient<Views.BootstrapPage>();
-        services.AddTransient<Views.MainPage>();
         services.AddTransient<Views.QueuePage>();
         services.AddTransient<Views.SettingsPage>();
         services.AddTransient<Views.ProfileEditorPage>();

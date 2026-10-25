@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -37,7 +39,7 @@ public partial class QueueItem : ObservableObject
     [ObservableProperty] private bool isFailed;
     [ObservableProperty] private bool isConverted;
 
-    // Compliance Validaiton
+    // Compliance Validation
     [ObservableProperty, NotifyPropertyChangedFor(nameof(ComplianceDisplay))] private bool isCompliant;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SizeChange))] private long outputSize;
 
@@ -46,5 +48,11 @@ public partial class QueueItem : ObservableObject
     public string ComplianceDisplay => IsCompliant ? "Compliant" : "Not Compliant";
 
     public long SizeChange => OutputSize - File.SizeBytes;
+
+    [RelayCommand]
+    private void RemoveItem()
+    {
+        WeakReferenceMessenger.Default.Send(new Messages.ItemRemovedMessage(this));
+    }
 
 }

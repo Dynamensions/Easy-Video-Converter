@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Dynamensions.EasyVideoConverter.Core.Helpers;
 using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Models.Enums;
@@ -72,7 +73,7 @@ public partial class QueueViewModel : ObservableObject
     private readonly IEncoderProfileService _serverProfileService;
     private readonly IClientProfileService _clientProfileService;
     private readonly IPickerService _pickerService;
-    private readonly ISystemService _systemService;
+    private readonly IEncoderCapabilitiesService _encoderCapabilitiesService;
     private readonly ISettingsService _settingsService;
     private readonly EncodeTimeEstimatorProcess _encodeTimeEstimator;
     private readonly SmartDecisionComplianceValidator _smartDecisionComplianceValidator;
@@ -96,9 +97,9 @@ public partial class QueueViewModel : ObservableObject
         SmartDecisionProcess smartDecisionProcess,
         IEncoderProfileService serverProfileService,
         IClientProfileService clientProfileService,
+        IEncoderCapabilitiesService encoderCapabilitiesService,
 
         // Utilities & Configuration
-        ISystemService systemService,
         IPickerService pickerService,
         ISettingsService settingsService,
         EncodeTimeEstimatorProcess encodeTimeEstimator,
@@ -112,15 +113,14 @@ public partial class QueueViewModel : ObservableObject
         _smartDecisionProcess = smartDecisionProcess;
         _serverProfileService = serverProfileService;
         _clientProfileService = clientProfileService;
-        _systemService = systemService;
+        _encoderCapabilitiesService = encoderCapabilitiesService;
         _pickerService = pickerService;
         _settingsService = settingsService;
         _encodeTimeEstimator = encodeTimeEstimator;
         _smartDecisionComplianceValidator = smartDecisionComplianceValidator;
 
         // Load encoder profiles
-        var caps = _systemService.GetEncoderCapabilities();
-        foreach (var profile in _serverProfileService.GetAvailableProfiles(caps))
+        foreach (var profile in _serverProfileService.GetAvailableProfiles(_encoderCapabilitiesService.EncoderCapabilities))
             EncoderProfiles.Add(profile);
 
         // Load client profiles
@@ -133,23 +133,32 @@ public partial class QueueViewModel : ObservableObject
                 Profiles = [.. group.Select(x => x.Value).OrderBy(x => x.Name)]
             });
 
-        // Set default selections
-        SelectedEncoderProfile = EncoderProfiles.FirstOrDefault(x => x.Name == _settingsService.Settings.SelectedEncoderProfileName) ?? EncoderProfiles.First();
-        SelectedClientProfile = ClientProfiles
-            .SelectMany(x => x.Profiles)
-            .Where(x => x.Name == settingsService.Settings.SelectedClientProfileName)
-            .FirstOrDefault()
-            ??
-            ClientProfiles.SelectMany(x => x.Profiles).First();
-
-        IsProfileSelectionEnabled = true;
-
         settingsService.SettingsChanged += () =>
         {
             UpdateDecisionForAllItems();
         };
+
+        WeakReferenceMessenger.Default.Register<Messages.ItemRemovedMessage>(this, (reciever, message) =>
+     {
+         RemoveItemCommand.Execute(message.QueueItem);
+     });
     }
     #endregion
+
+    public async Task InitializeAsync()
+    {
+        IsProfileSelectionEnabled = true;
+
+        // Set default selections
+        SelectedEncoderProfile = EncoderProfiles.FirstOrDefault(x => x.Name == _settingsService.Settings.SelectedEncoderProfileName) ?? EncoderProfiles.First();
+        SelectedClientProfile = ClientProfiles
+            .SelectMany(x => x.Profiles)
+            .Where(x => x.Name == _settingsService.Settings.SelectedClientProfileName)
+            .FirstOrDefault() ??
+            ClientProfiles.SelectMany(x => x.Profiles).First();
+
+        IsProfileSelectionEnabled = true;
+    }
 
     public void UpdateElapsedTime()
     {
@@ -239,7 +248,7 @@ public partial class QueueViewModel : ObservableObject
                     ProgressCallbackDispatcher?.Invoke((item, d, 0, 0, 0));
                 };
 
-                await _systemService.CopyFileAsync(item.File.Path, item.Task.OutputPath, true, copyProgress, item.Cancellation.Token);
+                //await _systemService.CopyFileAsync(item.File.Path, item.Task.OutputPath, true, copyProgress, item.Cancellation.Token);
             }
             else
             {
@@ -426,6 +435,8 @@ public partial class QueueViewModel : ObservableObject
 
     partial void OnSelectedClientProfileChanged(ClientProfile value)
     {
+        if (value == null) return;
+
         if (value.Name != _settingsService.Settings.SelectedClientProfileName)
         {
             _settingsService.Settings.SelectedClientProfileName = value?.Name ?? "Roku";
