@@ -22,11 +22,11 @@ public partial class App : Application
 {
     public IServiceProvider Services { get; }
     public Window Window { get; private set; } = default!;
-
     public new static App Current => (App)Application.Current;
 
     public App()
     {
+        LogEntry("App constructor entered");
         InitializeComponent();
 
         // Exception Handling
@@ -107,14 +107,26 @@ public partial class App : Application
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        // load the profiles.
-        var clientProfileService = App.Current.Services.GetRequiredService<IClientProfileService>();
-        clientProfileService.LoadInternalProfiles();
+        try
+        {
+            LogEntry("OnLaunched started");
 
-        base.OnLaunched(args);
+            LogEntry("Creating profiles");
+            // load the profiles.
+            var clientProfileService = App.Current.Services.GetRequiredService<IClientProfileService>();
+            clientProfileService.LoadInternalProfiles();
 
-        App.Current.Window = new MainWindow();
-        App.Current.Window.Activate();
+            App.Current.Window = new MainWindow();
+            LogEntry("MainWindow created");
+            App.Current.Window.Activate();
+            LogEntry("MainWindow activated");
+        }
+        catch (Exception ex)
+        {
+            LogException("OnLaunched", ex);
+            throw;
+        }
+
     }
 
     private void RegisterExceptionHandlers()
@@ -126,6 +138,8 @@ public partial class App : Application
         TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
         this.UnhandledException += App_UnhandledException;
+
+        LogEntry("Exception handlers registered");
     }
 
 
@@ -168,6 +182,17 @@ public partial class App : Application
             File.AppendAllText(file, text);
 
             EventLog.WriteEntry("Application", text, EventLogEntryType.Error);
+        }
+        catch
+        {
+        }
+    }
+
+    public static void LogEntry(string message, EventLogEntryType eventLogEntryType = EventLogEntryType.Information)
+    {
+        try
+        {
+            EventLog.WriteEntry("Application", message, eventLogEntryType);
         }
         catch
         {
