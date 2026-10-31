@@ -4,11 +4,7 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Dynamensions.EasyVideoConverter.Core/Dynamensions.EasyVideoConverter.Core.csproj" Id="c86ffc01-9d93-435b-a672-7a32b506a21c">
-    <Platform Solution="*|ARM64" Project="ARM64" />
-    <Platform Solution="*|x64" Project="x64" />
-    <Platform Solution="*|x86" Project="x86" />
-  </Project>
+  <Project Path="Dynamensions.EasyVideoConverter.Core/Dynamensions.EasyVideoConverter.Core.csproj" Id="1ae71ebd-74eb-4f2c-ae0f-87eb6736227e" />
   <Project Path="Dynamensions.EasyVideoConverter.Tests/Dynamensions.EasyVideoConverter.Tests.csproj" Id="1dc9b1a2-ec30-403d-81c2-de1c7762d7ac">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />

@@ -6,7 +6,10 @@ using Dynamensions.EasyVideoConverter.Core.Models.Enums;
 using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 using Dynamensions.EasyVideoConverter.Core.Models.Subtitles;
 using Dynamensions.EasyVideoConverter.Core.Services;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Core.ViewModels;
 

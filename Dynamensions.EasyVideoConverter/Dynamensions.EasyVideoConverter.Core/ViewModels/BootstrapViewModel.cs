@@ -4,6 +4,9 @@ using CommunityToolkit.Mvvm.Messaging;
 using Dynamensions.EasyVideoConverter.Core.Messages;
 using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Services;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Core.ViewModels
 {

@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+using System;
+using System.IO;
 
 namespace Dynamensions.EasyVideoConverter.Core.Models;
 

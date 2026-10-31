@@ -25,11 +25,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Using Include="Xunit" />
+	  <ProjectReference Include="..\Dynamensions.EasyVideoConverter.Core\Dynamensions.EasyVideoConverter.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Dynamensions.EasyVideoConverter.Core\Dynamensions.EasyVideoConverter.Core.csproj" />
+		<Using Include="Xunit" />
 	</ItemGroup>
 
 </Project>

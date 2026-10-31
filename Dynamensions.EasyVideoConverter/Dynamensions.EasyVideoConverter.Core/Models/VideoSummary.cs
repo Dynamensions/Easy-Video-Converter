@@ -1,4 +1,8 @@
-﻿namespace Dynamensions.EasyVideoConverter.Core.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Dynamensions.EasyVideoConverter.Core.Models;
 
 public class VideoSummary
 {

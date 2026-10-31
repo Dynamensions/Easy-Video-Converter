@@ -1,4 +1,6 @@
 ﻿using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Core.Services;
 

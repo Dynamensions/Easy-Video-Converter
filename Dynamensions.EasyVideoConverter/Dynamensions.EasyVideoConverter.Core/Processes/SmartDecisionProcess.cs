@@ -4,6 +4,8 @@ using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Dynamensions.EasyVideoConverter.Helpers;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 
 namespace Dynamensions.EasyVideoConverter.Core.Processes;
 

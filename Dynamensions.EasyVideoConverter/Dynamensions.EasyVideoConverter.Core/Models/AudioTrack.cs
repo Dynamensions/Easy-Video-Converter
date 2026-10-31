@@ -1,4 +1,6 @@
-﻿namespace Dynamensions.EasyVideoConverter.Core.Models;
+﻿using System;
+
+namespace Dynamensions.EasyVideoConverter.Core.Models;
 
 public class AudioTrack
 {

@@ -1,4 +1,7 @@
-﻿namespace Dynamensions.EasyVideoConverter.Core.Services;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Dynamensions.EasyVideoConverter.Core.Services;
 
 public interface IPickerService
 {

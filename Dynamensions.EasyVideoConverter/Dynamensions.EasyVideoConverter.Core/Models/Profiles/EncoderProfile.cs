@@ -1,4 +1,6 @@
-﻿namespace Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+﻿using System;
+
+namespace Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 
 public class EncoderProfile
 {
