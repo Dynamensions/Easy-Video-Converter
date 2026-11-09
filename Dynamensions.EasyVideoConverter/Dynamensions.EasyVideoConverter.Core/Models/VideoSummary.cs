@@ -31,6 +31,6 @@ public class VideoSummary
             ];
 
 
-        return String.Join(',', items.Where(x => !String.IsNullOrWhiteSpace(x)));
+        return String.Join(", ", items.Where(x => !String.IsNullOrWhiteSpace(x)));
     }
 }

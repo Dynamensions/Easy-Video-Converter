@@ -25,6 +25,7 @@
 
 	<ItemGroup>
 	  <None Remove="Views\BootstrapPage.xaml" />
+	  <None Remove="Views\LogView.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -53,6 +54,11 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Dynamensions.EasyVideoConverter.Core\Dynamensions.EasyVideoConverter.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\LogView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 
 	<!--

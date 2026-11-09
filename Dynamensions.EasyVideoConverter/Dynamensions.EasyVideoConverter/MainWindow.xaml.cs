@@ -89,6 +89,11 @@ public sealed partial class MainWindow : Window
                     ContentFrame.Navigate(services.GetRequiredService<ProfileEditorPage>().GetType());
                     App.LogEntry("Click navigation to Profiles complete");
                     break;
+
+                case "LogsPage":
+                    ContentFrame.Navigate(services.GetRequiredService<LogView>().GetType());
+                    App.LogEntry("Click navigation to Logs complete");
+                    break;
             }
         }
     }

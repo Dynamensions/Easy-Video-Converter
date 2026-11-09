@@ -20,6 +20,13 @@ namespace Dynamensions.EasyVideoConverter;
 
 public partial class App : Application
 {
+    // Set the base folder
+    private readonly string appFolder = AppContext.BaseDirectory;
+    // Set the local folder
+    private readonly string localFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+    // Set the log folder
+    private readonly string logFolder = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Dynamensions.EasyVideoConverter", "Logs");
+
     public IServiceProvider Services { get; }
     public Window Window { get; private set; } = default!;
     public new static App Current => (App)Application.Current;
@@ -32,14 +39,9 @@ public partial class App : Application
         // Exception Handling
         RegisterExceptionHandlers();
 
-        // Set the base folder
-        var appFolder = AppContext.BaseDirectory;
-        // Set the local folder
-        var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-        // Set the log folder
-        var logFolder = Path.Combine(localFolder.Path, "Dynamensions.EasyVideoConverter", "logs");
         // Create directory
         var logFolderCreated = Directory.CreateDirectory(logFolder);
+
 
         // Configure log
         Log.Logger = new LoggerConfiguration()
@@ -54,6 +56,7 @@ public partial class App : Application
         // Configure services
         Services = ConfigureServices();
 
+        CleanupOldLogs();
     }
 
     private static IServiceProvider ConfigureServices()
@@ -79,6 +82,7 @@ public partial class App : Application
         services.AddSingleton<ISubtitleExtractorService, SubtitleExtractorService>();
         services.AddSingleton<ITranscodeQueueService, TranscodeQueueService>();
         services.AddSingleton<ITranscodeService, TranscodeService>();
+        services.AddSingleton<ILogService, LogService>();
 
         // processes
         services.AddSingleton<SmartDecisionProcess>();
@@ -94,12 +98,14 @@ public partial class App : Application
         services.AddTransient<ProfileEditorViewModel>();
         services.AddTransient<QueueViewModel>();
         services.AddTransient<SettingsViewModel>();
+        services.AddTransient<LogsViewModel>();
 
         // Views
         services.AddTransient<Views.BootstrapPage>();
         services.AddTransient<Views.QueuePage>();
         services.AddTransient<Views.SettingsPage>();
         services.AddTransient<Views.ProfileEditorPage>();
+        services.AddTransient<Views.LogView>();
 
 
         return services.BuildServiceProvider();
@@ -196,6 +202,22 @@ public partial class App : Application
         }
         catch
         {
+        }
+    }
+
+    private void CleanupOldLogs()
+    {
+        if (!Directory.Exists(logFolder))
+            return;
+
+        var cutoff = DateTime.Now.AddDays(-2);
+
+        foreach (var file in Directory.GetFiles(logFolder, "*.log"))
+        {
+            if (File.GetCreationTime(file) < cutoff)
+            {
+                File.Delete(file);
+            }
         }
     }
 

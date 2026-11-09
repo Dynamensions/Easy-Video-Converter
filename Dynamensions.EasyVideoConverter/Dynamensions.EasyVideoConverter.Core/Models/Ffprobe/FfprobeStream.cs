@@ -144,7 +144,7 @@ public class FfprobeStream
     public string BitRate { get; set; }
 
     [JsonPropertyName("duration_ts")]
-    public int? DurationTs { get; set; }
+    public long? DurationTs { get; set; }
 
     [JsonPropertyName("duration")]
     public string Duration { get; set; }
