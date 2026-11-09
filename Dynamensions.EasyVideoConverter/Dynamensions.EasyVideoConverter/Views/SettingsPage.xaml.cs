@@ -17,7 +17,7 @@ namespace Dynamensions.EasyVideoConverter.Views
         public SettingsPage()
         {
             InitializeComponent();
-            this.DataContext = App.AppHost.Services.GetRequiredService<SettingsViewModel>();
+            this.DataContext = App.Current.Services.GetRequiredService<SettingsViewModel>();
         }
 
         private async void InlineHyperlink_Click(Hyperlink sender, HyperlinkClickEventArgs args)

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Dynamensions.EasyVideoConverter.Core.Extensions;
 using Dynamensions.EasyVideoConverter.Core.Models.Enums;
+using System.Collections.Generic;
 
 namespace Dynamensions.EasyVideoConverter.Core.Models;
 
@@ -21,7 +22,7 @@ public partial class SmartDecision : ObservableObject
     [NotifyPropertyChangedFor(nameof(PlaybackQualityColor))]
     [NotifyPropertyChangedFor(nameof(PlaybackQualityIcon))]
     [NotifyPropertyChangedFor(nameof(PlaybackQualityScore))]
-    private bool isDirectPlay;
+    public bool isDirectPlay;
 
 
     [ObservableProperty]
@@ -247,7 +248,7 @@ public partial class SmartDecision : ObservableObject
                     return "1080p (No scaling)";
                 if (TargetWidth >= 1280)
                     return "720p (No scaling)";
-                return "SD (No scaling)";
+                return $"SD {TargetWidth} (No scaling)";
             }
 
 
@@ -267,7 +268,7 @@ public partial class SmartDecision : ObservableObject
                 >= 3840 => "4K",
                 >= 1920 => "1080p",
                 >= 1280 => "720p",
-                _ => "SD"
+                _ => $"SD {TargetWidth}"
             };
 
             return $"{resLabel} ({severity})";

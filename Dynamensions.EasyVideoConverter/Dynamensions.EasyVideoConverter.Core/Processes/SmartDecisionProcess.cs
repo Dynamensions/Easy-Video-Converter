@@ -4,6 +4,8 @@ using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 using Dynamensions.EasyVideoConverter.Core.Services;
 using Dynamensions.EasyVideoConverter.Helpers;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 
 namespace Dynamensions.EasyVideoConverter.Core.Processes;
 
@@ -334,11 +336,9 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
         // ---------------------------------------------------------
         // SCALING
         // ---------------------------------------------------------
-        d.RequiresScaling =
-            info.Width > client.MaxWidth ||
-            info.Height > client.MaxHeight;
+        ApplyScaling(client, info, d);
 
-        // output video should not exceed input video.
+        // output video should not exceed input video unless it's under min.
         if (settingsService.Settings.UpscaleVideo)
         {
             d.TargetWidth = client.MaxWidth;
@@ -479,6 +479,17 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
         }
     }
 
+    private static void ApplyScaling(ClientProfile client, MediaInfo info, SmartDecision d)
+    {
+        const int minWidth = 0;
+        const int minHeight = 0;
+
+        d.RequiresScaling =
+            info.Width > client.MaxWidth ||
+            info.Height > client.MaxHeight ||
+            info.Width < minWidth ||
+            info.Height < minHeight;
+    }
 
     // ---------------------------------------------------------
     // VIDEO ENCODER SELECTION

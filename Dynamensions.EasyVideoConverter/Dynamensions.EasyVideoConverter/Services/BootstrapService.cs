@@ -62,7 +62,8 @@ public class BootstrapService : IBootstrapService
             if (_initialized) return;
 
             // probably redundant, but the call is not expensive so keep it.
-            Verify();
+            var isVerified = Verify();
+            if (isVerified) return;
 
             // one is missing. re-download...
             var archivePath = Path.Combine(_ffmpegDir, "ffmpeg.7z");

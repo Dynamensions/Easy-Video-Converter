@@ -2,6 +2,7 @@
 using Dynamensions.EasyVideoConverter.Core.Models.Enums;
 using Dynamensions.EasyVideoConverter.Core.Models.Ffprobe;
 using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Dynamensions.EasyVideoConverter.Core.Serialization;

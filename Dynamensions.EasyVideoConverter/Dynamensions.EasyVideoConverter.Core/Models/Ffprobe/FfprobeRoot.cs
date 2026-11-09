@@ -1,5 +1,6 @@
 ﻿namespace Dynamensions.EasyVideoConverter.Core.Models.Ffprobe;
 
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 public class FfprobeRoot

@@ -1,4 +1,6 @@
-﻿namespace Dynamensions.EasyVideoConverter.Core.Models;
+﻿using System.Collections.Generic;
+
+namespace Dynamensions.EasyVideoConverter.Core.Models;
 
 public static class FilenamePatternPresets
 {

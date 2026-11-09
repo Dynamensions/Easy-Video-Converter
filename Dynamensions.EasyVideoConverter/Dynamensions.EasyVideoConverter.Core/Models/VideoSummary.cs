@@ -1,4 +1,8 @@
-﻿namespace Dynamensions.EasyVideoConverter.Core.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Dynamensions.EasyVideoConverter.Core.Models;
 
 public class VideoSummary
 {
@@ -27,6 +31,6 @@ public class VideoSummary
             ];
 
 
-        return String.Join(',', items.Where(x => !String.IsNullOrWhiteSpace(x)));
+        return String.Join(", ", items.Where(x => !String.IsNullOrWhiteSpace(x)));
     }
 }

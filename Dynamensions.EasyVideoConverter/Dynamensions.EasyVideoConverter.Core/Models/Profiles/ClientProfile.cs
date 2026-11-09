@@ -1,4 +1,7 @@
 ﻿using Dynamensions.EasyVideoConverter.Core.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 

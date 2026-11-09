@@ -1,4 +1,6 @@
-﻿namespace Dynamensions.EasyVideoConverter.Core.Models.Subtitles;
+﻿using System.Collections.Generic;
+
+namespace Dynamensions.EasyVideoConverter.Core.Models.Subtitles;
 
 public static class SubtitleLanguageCatalog
 {

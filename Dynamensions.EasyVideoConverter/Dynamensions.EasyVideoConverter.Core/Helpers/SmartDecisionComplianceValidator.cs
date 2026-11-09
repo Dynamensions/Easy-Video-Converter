@@ -2,6 +2,11 @@
 using Dynamensions.EasyVideoConverter.Core.Models.Enums;
 using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 using Dynamensions.EasyVideoConverter.Core.Services;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Core.Helpers;
 

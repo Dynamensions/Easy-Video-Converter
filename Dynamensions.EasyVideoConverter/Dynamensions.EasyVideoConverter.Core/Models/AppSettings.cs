@@ -1,4 +1,7 @@
-﻿namespace Dynamensions.EasyVideoConverter.Core.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Dynamensions.EasyVideoConverter.Core.Models;
 
 public class AppSettings
 {

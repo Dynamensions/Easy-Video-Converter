@@ -1,6 +1,10 @@
 ﻿using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Models.Enums;
 using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Dynamensions.EasyVideoConverter.Core.Helpers;

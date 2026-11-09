@@ -1,6 +1,8 @@
 ﻿using Dynamensions.EasyVideoConverter.Core.Models;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Dynamensions.EasyVideoConverter.Core.Services;
 

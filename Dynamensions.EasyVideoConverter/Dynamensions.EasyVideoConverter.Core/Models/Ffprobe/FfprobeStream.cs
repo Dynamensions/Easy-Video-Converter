@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Dynamensions.EasyVideoConverter.Core.Models.Ffprobe;
 
@@ -143,7 +144,7 @@ public class FfprobeStream
     public string BitRate { get; set; }
 
     [JsonPropertyName("duration_ts")]
-    public int? DurationTs { get; set; }
+    public long? DurationTs { get; set; }
 
     [JsonPropertyName("duration")]
     public string Duration { get; set; }

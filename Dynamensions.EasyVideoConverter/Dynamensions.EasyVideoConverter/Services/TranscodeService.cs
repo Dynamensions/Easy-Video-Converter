@@ -2,6 +2,7 @@
 using Dynamensions.EasyVideoConverter.Core.Models.Enums;
 using Dynamensions.EasyVideoConverter.Core.Processes;
 using Dynamensions.EasyVideoConverter.Core.Services;
+using Dynamensions.EasyVideoConverter.Logging;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,9 @@ namespace Dynamensions.EasyVideoConverter.Services;
 
 public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTimeEstimatorProcess encodeTimeEstimator, ISettingsService settingsService) : ITranscodeService
 {
-
     public async Task TranscodeAsync(QueueItem queueItem, Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback)
     {
+        using var encodeLog = new EncodeLogger(queueItem.Task.OutputFileName);
 
         var stopwatch = Stopwatch.StartNew();
         var currentFPS = 0;
@@ -69,7 +70,7 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
             if (string.IsNullOrWhiteSpace(line))
                 return;
 
-            logger.LogDebug("[FFmpeg] {Line}", line);
+            encodeLog.Logger.Debug("[FFmpeg] {Line}", line);
 
             // Extract time
             var timeMatch = TimeRegex().Match(line);
@@ -105,14 +106,14 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
             {
                 try
                 {
-                    logger.LogInformation("Cancellation requested, stopping process...");
+                    encodeLog.Logger.Error("Cancellation requested, stopping process...");
                     process.Kill(entireProcessTree: true);
 
                 }
                 catch (Exception ex)
                 {
                     // Log the error, and return the error to the user.
-                    logger.LogError(ex, "Failed to kill ffprobe process for {FilePath}. {file}", queueItem.Task.OutputPath, queueItem.Task.OutputFileName);
+                    encodeLog.Logger.Error(ex, "Failed to kill ffprobe process for {FilePath}. {file}", queueItem.Task.OutputPath, queueItem.Task.OutputFileName);
                     task.ErrorMessage = ex.Message;
                 }
             }

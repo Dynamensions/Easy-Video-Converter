@@ -17,7 +17,11 @@ public sealed partial class BootstrapPage : Page
     public BootstrapPage()
     {
         InitializeComponent();
+        viewModel = App.Current.Services.GetRequiredService<BootstrapViewModel>();
+    }
 
-        DataContext = viewModel = App.AppHost.Services.GetRequiredService<BootstrapViewModel>();
+    private async void Page_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        await viewModel.PrepareViewModelAsync();
     }
 }
