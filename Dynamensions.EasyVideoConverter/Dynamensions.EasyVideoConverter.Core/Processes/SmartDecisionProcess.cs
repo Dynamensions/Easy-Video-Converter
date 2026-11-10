@@ -52,8 +52,6 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
             SmartDecisionLog.SubtitlesExternalExtract(logger);
         }
 
-
-
         // ---------------------------------------------------------
         // CLIENT SUBTITLE CAPABILITY
         // ---------------------------------------------------------
@@ -64,7 +62,6 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
         // ---------------------------------------------------------
         // SUBTITLE HANDLING DECISION (CORRECTED)
         // ---------------------------------------------------------
-
         var hasAnySubtitle =
             d.SelectedSubtitle != null ||
             (d.ExternalSubtitles != null && d.ExternalSubtitles.Count != 0);
