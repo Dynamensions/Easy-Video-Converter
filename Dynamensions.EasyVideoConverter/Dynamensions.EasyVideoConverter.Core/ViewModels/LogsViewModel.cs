@@ -54,9 +54,11 @@ public partial class LogsViewModel(ILogService logService, ILogger<LogsViewModel
             // Delete the file
             logger.LogInformation($"Deleting {SelectedLog.FileName}");
             await logService.DeleteLogAsync(SelectedLog);
-            LogEntries.Remove(SelectedLog);
-            SelectedLog = null;
 
+            LogEntries.Remove(SelectedLog);
+            OnPropertyChanged(nameof(LogEntries));
+
+            SelectedLog = null;
         }
         catch (Exception ex)
         {
@@ -86,7 +88,7 @@ public partial class LogsViewModel(ILogService logService, ILogger<LogsViewModel
                 logger.LogError(ex, "Error deleting log.");
             }
         }
-
+        OnPropertyChanged(nameof(LogEntries));
     }
 
     private static LogLine ParseLogLine(string line, int index)

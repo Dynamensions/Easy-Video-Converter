@@ -10,5 +10,6 @@ namespace Dynamensions.EasyVideoConverter.Core.Services
         Task<string> OpenLogAsync(string filename);
         Task DeleteLogAsync(LogEntry logEntry);
         Task DeleteAllLogsAsync();
+        Task DeleteAllJobLogs();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Dynamensions.EasyVideoConverter.Core.Models;
 using Dynamensions.EasyVideoConverter.Core.Services;
+using Dynamensions.EasyVideoConverter.Logging;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,13 @@ namespace Dynamensions.EasyVideoConverter.Services
     {
         // Set the log folder
         private readonly string logFolder = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Dynamensions.EasyVideoConverter", "Logs");
+
+        public Task DeleteAllJobLogs()
+        {
+            using var encodeLogger = new EncodeLogger("cleanup");
+            encodeLogger.CleanLogs();
+            return Task.CompletedTask;
+        }
 
         public Task DeleteAllLogsAsync()
         {

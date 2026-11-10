@@ -72,6 +72,7 @@ public partial class QueueViewModel : ObservableObject
     // DEPENDENCIES (SERVICES)
     // =========================================================
     private readonly ILogger _logger;
+    private readonly ILogService _logService;
     private readonly ITranscodeQueueService _queue;
     private readonly IMediaFileAnalyzerService _mediaFileAnalyzerService;
     private readonly ITranscodeService _transcodeService;
@@ -93,7 +94,9 @@ public partial class QueueViewModel : ObservableObject
     // =========================================================
     public QueueViewModel(
         ILogger<QueueViewModel> logger,
+
         // Core Services
+        ILogService logService,
         ITranscodeQueueService queue,
         IMediaFileAnalyzerService mediaFileAnalyzerService,
         ITranscodeService transcodeService,
@@ -112,6 +115,7 @@ public partial class QueueViewModel : ObservableObject
         SmartDecisionComplianceValidator smartDecisionComplianceValidator)
     {
         _logger = logger;
+        _logService = logService;
         _queue = queue;
         _mediaFileAnalyzerService = mediaFileAnalyzerService;
         _transcodeService = transcodeService;
@@ -370,6 +374,7 @@ public partial class QueueViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanStartQueue))]
     private async Task StartQueueAsync()
     {
+        await _logService.DeleteAllJobLogs();
         // set the start time.
         StartDateTime = DateTime.Now;
 

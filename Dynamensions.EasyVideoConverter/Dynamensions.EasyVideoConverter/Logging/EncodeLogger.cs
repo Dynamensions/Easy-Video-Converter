@@ -1,34 +1,29 @@
 ﻿using Serilog;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Dynamensions.EasyVideoConverter.Logging;
 
 public class EncodeLogger : IDisposable
 {
+    // Set the base folder
+    private readonly string _appFolder = AppContext.BaseDirectory;
+    // Set the local folder
+    private readonly Windows.Storage.StorageFolder _localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+    // Set the log folder
+    private readonly string _logFolder = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Dynamensions.EasyVideoConverter", "Logs");
+
     public ILogger Logger { get; }
 
     public EncodeLogger(string jobId)
     {
-        // Set the base folder
-        var appFolder = AppContext.BaseDirectory;
-        // Set the local folder
-        var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-        // Set the log folder
-        var logFolder = Path.Combine(localFolder.Path, "Dynamensions.EasyVideoConverter", "Logs");
-
         var fileName = Path.Combine(
-            logFolder,
-            $"{jobId}_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+            _logFolder,
+            $"job-{jobId}_{DateTime.Now:yyyyMMdd_HHmmss}.log");
 
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .WriteTo.File(
-            path: "Logs\\Jobs-.log",
-            rollingInterval: RollingInterval.Hour,
-            retainedFileCountLimit: 2)
-            .CreateLogger();
-
+        // Create directory
+        Directory.CreateDirectory(_logFolder);
 
 #if DEBUG
         Logger = new LoggerConfiguration()
@@ -41,6 +36,23 @@ public class EncodeLogger : IDisposable
             .WriteTo.File(fileName)
             .CreateLogger();
 #endif
+    }
+
+    public void CleanLogs()
+    {
+        var logFolder = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Dynamensions.EasyVideoConverter", "Logs");
+        var logFiles = Directory.GetFiles(logFolder, "job-*.log");
+        var filenames = logFiles.Select(Path.GetFileName);
+        foreach (var log in filenames)
+        {
+            try
+            {
+                if (log != null) File.Delete(log);
+            }
+            catch
+            {
+            }
+        }
     }
 
     public void Dispose()

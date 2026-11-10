@@ -71,6 +71,7 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
 
         if (info.Subtitles.Count == 0)
         {
+            d.SubtitleHandling = SubtitleMode.None;
             d.Reasons.Add("No subtitles available in source.");
         }
         else if (!hasAnySubtitle)
@@ -142,7 +143,7 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
         // ---------------------------------------------------------
         // ROKU SPECIAL CASE (CORRECTED)
         // ---------------------------------------------------------
-        if (client.Name.Contains("Roku", StringComparison.OrdinalIgnoreCase))
+        if (client.Name.Contains("Roku", StringComparison.OrdinalIgnoreCase) && d.SubtitleHandling != SubtitleMode.None)
         {
             if (d.SelectedSubtitle != null && !d.SelectedSubtitle.IsSrt)
             {
