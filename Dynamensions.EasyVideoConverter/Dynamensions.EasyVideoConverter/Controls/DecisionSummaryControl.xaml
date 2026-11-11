@@ -42,7 +42,7 @@
             <!-- AUDIO -->
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Glyph="&#xE15D;" FontSize="16" Foreground="{x:Bind Decision.AudioColor, Converter={StaticResource UniversalColorToBrushConverter}}" />
-                <TextBlock Text="{x:Bind Decision.AudioSummary, Mode=OneWay}" FontSize="14"/>
+                <TextBlock Text="{x:Bind Decision.AudioSummaryFormatted, Mode=OneWay}" FontSize="14"/>
             </StackPanel>
 
             <!-- SUBTITLES -->

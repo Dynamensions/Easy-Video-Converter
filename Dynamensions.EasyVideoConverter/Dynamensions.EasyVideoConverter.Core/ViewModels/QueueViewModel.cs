@@ -362,7 +362,16 @@ public partial class QueueViewModel : ObservableObject
         var finalName = $"{name}{ext}";
 
         var filePatternPreset = filePatternPresets[_settingsService.Settings.SelectedPatternPreset];
-        finalName = FilenamePatternEngine.Apply(filePatternPreset, finalName, d.VideoSummary, d.AudioSummary, SelectedClientProfile, SelectedEncoderProfile, d.SubtitleHandling, d.SelectedSubtitle, d.ExternalSubtitles, mediaInfo);
+        var audioSummary = new AudioSummary()
+        {
+            Codec = d.SelectedAudioCodec,
+            Channels = d.TargetAudioChannels,
+            AudioBitrateKbps = d.TargetAudioBitRateKbps,
+            IsAtmos = d.IsAtmos,
+            RequiresAacStereoFallback = d.RequiresAacStereoFallback
+        };
+
+        finalName = FilenamePatternEngine.Apply(filePatternPreset, finalName, d.VideoSummary, audioSummary, SelectedClientProfile, SelectedEncoderProfile, d.SubtitleHandling, d.SelectedSubtitle, d.ExternalSubtitles, mediaInfo);
 
 
         return Path.Combine(finalDir, $"{finalName}{ext}");
@@ -503,7 +512,7 @@ public partial class QueueViewModel : ObservableObject
             // estimate conversion time
             // 1. Build temporary PerformanceKey for estimation
             var perfKey = EncodeTimeEstimatorProcess.CreatePerformanceKey(item.Info, item.Task.Decision);
-
+            OnPropertyChanged(nameof(item.Task.Decision));
             // 2. Estimate encoding time
             var secondsRemaining = _encodeTimeEstimator.EstimatePreEncode(perfKey, item.Info.Duration.TotalSeconds);
             item.EstimatedTimeRemaining = TimeSpan.FromSeconds(secondsRemaining);

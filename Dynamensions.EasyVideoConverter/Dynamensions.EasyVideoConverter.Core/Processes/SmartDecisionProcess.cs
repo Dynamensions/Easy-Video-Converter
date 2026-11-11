@@ -245,7 +245,7 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
             // Multichannel → Dolby Digital Plus (EAC3)
             d.SelectedAudioCodec = "eac3";
             d.TargetAudioChannels = Math.Min(info.AudioChannels, client.MaxAudioChannels);
-            d.TargetAudioBitrateKbps = 768;
+            d.TargetAudioBitRateKbps = 768;
 
             d.RequiresAacStereoFallback = requiresAacFallback;
 
@@ -262,7 +262,7 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
             // Stereo → AAC
             d.SelectedAudioCodec = "aac";
             d.TargetAudioChannels = 2;
-            d.TargetAudioBitrateKbps = 128;
+            d.TargetAudioBitRateKbps = 128;
             SmartDecisionLog.AudioStereoAac(logger);
         }
 
@@ -297,10 +297,8 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
             SmartDecisionLog.TranscodeTargetChannels(logger);
         }
 
-
         // Clamp audio bit rate to safe levels.
         ClampBitRate(info, d);
-
 
         // Video output format
         d.SelectedVideoCodec = client.PreferredVideoCodec;
@@ -413,35 +411,64 @@ public class SmartDecisionProcess(ILogger<SmartDecision> logger, ISettingsServic
         return client.PreferredAudioCodec;
     }
 
+
+
+
     private static void ClampBitRate(MediaInfo info, SmartDecision d)
     {
         int sourceKbps = (int)(info.AudioBitrate / 1000);
 
-        // ---------------------------------------------------------
-        // AUDIO BITRATE CLAMP (Roku-safe)
-        // ---------------------------------------------------------
         if (d.SelectedAudioCodec == "aac")
         {
-            // Roku supports AAC only up to 256 kbps
-            if (sourceKbps > 256)
-                d.TargetAudioBitrateKbps = 192;   // safe fallback
-            else
-                d.TargetAudioBitrateKbps = sourceKbps;
-
-            d.Reasons.Add($"AAC bitrate clamped to {d.TargetAudioBitrateKbps} Kbps for Roku compatibility.");
+            // AAC max is be 256
+            d.TargetAudioBitRateKbps = NormalizeAudioBitrate(sourceKbps, d.SelectedAudioCodec);
+            d.Reasons.Add($"AAC bitrate clamped to {d.TargetAudioBitRateKbps} Kbps for Roku compatibility.");
         }
         else if (d.SelectedAudioCodec == "ac3")
         {
             // AC3 max is 640 kbps
-            d.TargetAudioBitrateKbps = Math.Min(sourceKbps, 640);
-            d.Reasons.Add($"AC3 bitrate capped at {d.TargetAudioBitrateKbps} Kbps.");
+            //d.TargetAudioBitRateKbps = Math.Min(sourceKbps, 640);
+            d.TargetAudioBitRateKbps = NormalizeAudioBitrate(sourceKbps, d.SelectedAudioCodec);
+            d.Reasons.Add($"AC3 bitrate capped at {d.TargetAudioBitRateKbps} Kbps.");
         }
         else if (d.SelectedAudioCodec == "eac3")
         {
             // EAC3 max is 768 kbps
-            d.TargetAudioBitrateKbps = Math.Min(sourceKbps, 768);
-            d.Reasons.Add($"EAC3 bitrate capped at {d.TargetAudioBitrateKbps} Kbps.");
+            //var br = d.TargetAudioChannels * 128;
+            //d.TargetAudioBitRateKbps = Math.Min(br, 768);
+            d.TargetAudioBitRateKbps = NormalizeAudioBitrate(sourceKbps, d.SelectedAudioCodec);
+            d.Reasons.Add($"EAC3 bitrate capped at {d.TargetAudioBitRateKbps} Kbps.");
         }
+    }
+
+    private static int NormalizeAudioBitrate(int sourceKbps, string codec)
+    {
+        if (codec == "aac")
+        {
+            if (sourceKbps <= 96) return 96;
+            if (sourceKbps <= 128) return 128;
+            if (sourceKbps <= 160) return 160;
+            if (sourceKbps <= 192) return 192;
+            return 256;
+        }
+
+        if (codec == "ac3")
+        {
+            if (sourceKbps <= 192) return 192;
+            if (sourceKbps <= 384) return 384;
+            if (sourceKbps <= 448) return 448;
+            return 640;
+        }
+
+        if (codec == "eac3")
+        {
+            if (sourceKbps <= 192) return 192;
+            if (sourceKbps <= 384) return 384;
+            if (sourceKbps <= 640) return 640;
+            return 768;
+        }
+
+        return sourceKbps;
     }
 
     private static void ApplyStrictH264Compliance(ClientProfile client, MediaInfo info, SmartDecision d, ILogger logger)

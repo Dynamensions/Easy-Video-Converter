@@ -320,46 +320,44 @@ public partial class SmartDecision : ObservableObject
     [NotifyPropertyChangedFor(nameof(PlaybackQualityScore))]
     private bool requiresAudioEncode;
 
-    public int TargetAudioBitrateKbps { get; set; }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AudioSummaryFormatted))]
+    public partial int TargetAudioBitRateKbps { get; set; }
 
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(AudioSummary))]
+    [NotifyPropertyChangedFor(nameof(AudioSummaryFormatted))]
     [NotifyPropertyChangedFor(nameof(AudioColor))]
     private string selectedAudioCodec = string.Empty;
 
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(AudioSummary))]
+    [NotifyPropertyChangedFor(nameof(AudioSummaryFormatted))]
     [NotifyPropertyChangedFor(nameof(AudioColor))]
     private bool requiresAacStereoFallback;
 
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(AudioSummary))]
+    [NotifyPropertyChangedFor(nameof(AudioSummaryFormatted))]
     [NotifyPropertyChangedFor(nameof(AudioColor))]
     private int targetAudioChannels = 2;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(AudioSummary))]
+    [NotifyPropertyChangedFor(nameof(AudioSummaryFormatted))]
     [NotifyPropertyChangedFor(nameof(AudioColor))]
     private bool isAtmos;
 
     public bool AudioDownmixToStereo { get; set; }
-    public AudioSummary AudioSummary
+
+
+    public string AudioSummaryFormatted => new AudioSummary
     {
-        get
-        {
-            return new AudioSummary
-            {
-                Codec = SelectedAudioCodec?.ToLower() ?? "unknown",
-                Channels = TargetAudioChannels,
-                AudioBitrateKbps = TargetAudioBitrateKbps,
-                IsAtmos = IsAtmos,
-                RequiresAacStereoFallback = RequiresAacStereoFallback,
-            };
-        }
-    }
+        Codec = SelectedAudioCodec?.ToLower() ?? "unknown",
+        Channels = TargetAudioChannels,
+        AudioBitrateKbps = TargetAudioBitRateKbps,
+        IsAtmos = IsAtmos,
+        RequiresAacStereoFallback = RequiresAacStereoFallback,
+    }.ToString();
 
 
     public string AudioColor =>
@@ -594,7 +592,7 @@ public partial class SmartDecision : ObservableObject
 
 
     public string FullSummary =>
-        $"{ModeLabel} | {VideoSummary.DumpPropertiesFormatted()} | {AudioSummary} | {ResolutionAndScalingSummary} | {SubtitleSummary} | {ContainerSummary}";
+        $"{ModeLabel} | {VideoSummary.DumpPropertiesFormatted()} | {AudioSummaryFormatted} | {ResolutionAndScalingSummary} | {SubtitleSummary} | {ContainerSummary}";
 
 
     // ---------------------------------------------------------

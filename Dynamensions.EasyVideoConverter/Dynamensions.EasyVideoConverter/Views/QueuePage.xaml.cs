@@ -42,6 +42,17 @@ namespace Dynamensions.EasyVideoConverter.Views
                     p.item.Status = $"Extracting external subtitles [{p.Current} of {p.Total}] - [{p.SubtitleTrack.Title}({p.SubtitleTrack.Codec})] ({p.Current}/{p.Total})";
                 });
             };
+
+            //DispatcherTimer debugTimer = new() { Interval = System.TimeSpan.FromSeconds(1) };
+            //timer.Tick += (_, _) =>
+            //{
+            //    if (viewModel.Items.Count > 0)
+            //    {
+            //        var item = viewModel.Items[0];
+            //        item.Task.Decision.TargetAudioBitRateKbps += 1;
+            //    }
+            //};
+            //debugTimer.Start();
         }
 
         private async void RootPage_Loaded(object sender, RoutedEventArgs e)
