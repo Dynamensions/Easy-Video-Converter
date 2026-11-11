@@ -55,7 +55,7 @@
                             <TextBlock Text="{x:Bind Name}"
                                        FontSize="15"
                                        FontWeight="SemiBold"/>
-                            
+
                             <TextBlock Text="{x:Bind DeviceFamily}"
                                        FontSize="12"
                                        Opacity="0.7" />
@@ -175,48 +175,62 @@
             </StackPanel>
 
             <!-- TOOLBAR -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <Button Command="{x:Bind viewModel.AddFileCommand}"
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button Command="{x:Bind viewModel.AddFileCommand}"
+                            HorizontalAlignment="Right"
+                            IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
+                            Width="140">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8A5;" />
+                            <TextBlock Text="Add File" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{x:Bind viewModel.AddFolderCommand}"
+                            HorizontalAlignment="Right"
+                            IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
+                            Width="140">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8B7;" />
+                            <TextBlock Text="Add Folder" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{x:Bind viewModel.StartQueueCommand}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
+                            Width="160"
+                            Margin="24,0,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xF0E2;" />
+                            <TextBlock Text="Start Queue" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{x:Bind viewModel.ClearCompletedCommand}"
+                            IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
+                            Width="160">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE73E;" />
+                            <TextBlock Text="Clear Completed" />
+                        </StackPanel>
+                    </Button>
+                   
+                    <CheckBox Content="Auto Clear Completed"
+                              IsChecked="{x:Bind viewModel.AutoClearCompleted, Mode=TwoWay}"
+                              IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
+                              VerticalAlignment="Center">
+                    </CheckBox>
+                </StackPanel>
+
+                <Button Grid.Column="1"
                         HorizontalAlignment="Right"
-                        IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
-                        Width="140">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8A5;" />
-                        <TextBlock Text="Add File" />
-                    </StackPanel>
-                </Button>
-
-                <Button Command="{x:Bind viewModel.AddFolderCommand}"
-                        HorizontalAlignment="Right"
-                        IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
-                        Width="140">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8B7;" />
-                        <TextBlock Text="Add Folder" />
-                    </StackPanel>
-                </Button>
-
-                <Button Command="{x:Bind viewModel.StartQueueCommand}"
-                        Style="{StaticResource AccentButtonStyle}"
-                        IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
-                        Width="160"
-                        Margin="24,0,0,0">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xF0E2;" />
-                        <TextBlock Text="Start Queue" />
-                    </StackPanel>
-                </Button>
-
-                <Button Command="{x:Bind viewModel.ClearCompletedCommand}"
-                        IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
-                        Width="160">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE73E;" />
-                        <TextBlock Text="Clear Completed" />
-                    </StackPanel>
-                </Button>
-
-                <Button Command="{x:Bind viewModel.ClearAllCommand}"
+                        Command="{x:Bind viewModel.ClearAllCommand}"
                         Style="{StaticResource DefaultButtonStyle}"
                         IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
                         Width="160">
@@ -225,13 +239,8 @@
                         <TextBlock Text="Clear All" />
                     </StackPanel>
                 </Button>
+            </Grid>
 
-                <CheckBox Content="Auto Clear Completed"
-                          IsChecked="{x:Bind viewModel.AutoClearCompleted, Mode=TwoWay}"
-                          IsEnabled="{x:Bind viewModel.IsProfileSelectionEnabled, Mode=OneWay}"
-                          VerticalAlignment="Center">
-                </CheckBox>
-            </StackPanel>
 
             <!-- QUEUE STATUS SUMMARY -->
             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -364,7 +373,7 @@
                                                    FontWeight="SemiBold"
                                                    Foreground="White"/>
                                         </Border>
-                                        
+
                                         <!-- REMOVE BUTTON -->
                                         <Button Command="{x:Bind RemoveItemCommand}"
                                                 Background="Transparent"
