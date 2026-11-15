@@ -59,6 +59,14 @@ namespace Dynamensions.EasyVideoConverter.Core.ViewModels
             // verify dependencies are in place.
             IsVerified = ffmpegBootstrapService.Verify();
 
+            if (!IsVerified)
+            {
+                // due to the restrictions of windows store certification, we need to ship the ffmpeg binaries with the app. The app will also offer a download option.
+                await ffmpegBootstrapService.CopyFFMpegFromPackagingAsync();
+            }
+
+            IsVerified = ffmpegBootstrapService.Verify();
+
             // if dependencies are in place, get the encoder's capabilities.
             if (IsVerified)
             {

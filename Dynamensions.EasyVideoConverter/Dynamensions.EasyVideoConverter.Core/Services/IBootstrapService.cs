@@ -14,6 +14,12 @@ public interface IBootstrapService
     bool Verify();
 
     /// <summary>
+    /// Copies ffmpeg binaries from package.
+    /// </summary>
+    /// <returns></returns>
+    Task CopyFFMpegFromPackagingAsync();
+
+    /// <summary>
     /// Prepares the application by downloading any dependencies, including extraction.
     /// </summary>
     /// <param name="progess">The progress callback.</param>

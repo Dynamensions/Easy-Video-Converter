@@ -63,6 +63,8 @@ public class BootstrapService : IBootstrapService
 
             // probably redundant, but the call is not expensive so keep it.
             var isVerified = Verify();
+
+            // due to the restrictions of windows store certification, we need to ship the ffmpeg binaries with the app. The app will also offer a download option.
             if (isVerified) return;
 
             // one is missing. re-download...
@@ -95,6 +97,27 @@ public class BootstrapService : IBootstrapService
         {
             _logger.LogError(ex, "There was an error preparing the application.");
         }
+    }
+
+
+    public async Task CopyFFMpegFromPackagingAsync()
+    {
+        string arch = RuntimeInformation.ProcessArchitecture switch
+        {
+            Architecture.X86 => "x86",
+            Architecture.X64 => "x64",
+            Architecture.Arm64 => "arm64",
+            _ => throw new NotSupportedException()
+        };
+
+        string ffmpegPath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", arch, "ffmpeg.exe");
+        string ffprobePath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", arch, "ffprobe.exe");
+
+        // be sure the ffmpeg directory exists
+        Directory.CreateDirectory(_ffmpegDir);
+
+        File.Copy(ffmpegPath, Path.Combine(_ffmpegDir, "ffmpeg.exe"), true);
+        File.Copy(ffprobePath, Path.Combine(_ffmpegDir, "ffprobe.exe"), true);
     }
 
     /// <summary>

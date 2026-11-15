@@ -61,7 +61,33 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
+	<ItemGroup>
+		<Content Include="Assets\FFmpeg\**\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<!-- FFmpeg-->
+	<ItemGroup Condition="'$(Platform)'=='x64'">
+		<Content Include="ThirdParty\FFmpeg\x64\**\*">
+			<Link>Assets\FFmpeg\%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
+	<ItemGroup Condition="'$(Platform)'=='x86'">
+		<Content Include="ThirdParty\FFmpeg\x86\**\*">
+			<Link>Assets\FFmpeg\%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Platform)'=='ARM64'">
+		<Content Include="ThirdParty\FFmpeg\arm64\**\*">
+			<Link>Assets\FFmpeg\%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	
 	<!--
 	Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
 	Explorer "Package and Publish" context menu entry to be enabled for this project even if
@@ -86,4 +112,7 @@
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<AppxBundlePlatforms>x86|x64|arm64</AppxBundlePlatforms>
 	</PropertyGroup>
+	<ItemGroup>
+	  <PRIResource Remove="Assets\FFmpeg\x64\**" />
+	</ItemGroup>
 </Project>
