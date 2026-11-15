@@ -55,36 +55,6 @@
 	  <ProjectReference Include="..\Dynamensions.EasyVideoConverter.Core\Dynamensions.EasyVideoConverter.Core.csproj" />
 	</ItemGroup>
 
-		
-	<!-- FFmpeg-->
-	<ItemGroup Condition="'$(Platform)'=='x64'">
-		<Content Include="ThirdParty\FFmpeg\x64\**\*">
-			<Link>Assets\FFmpeg\%(RecursiveDir)%(Filename)%(Extension)</Link>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(RuntimeIdentifier)'=='x86'">
-		<Content Include="ThirdParty\FFmpeg\x86\**\*">
-			<Link>Assets\FFmpeg\%(RecursiveDir)%(Filename)%(Extension)</Link>
-		</Content>
-	</ItemGroup>
-	
-	<ItemGroup Condition="'$(RuntimeIdentifier)'=='ARM64'">
-		<Content Include="ThirdParty\FFmpeg\ARM64\**\*">
-			<Link>Assets\FFmpeg\%(RecursiveDir)%(Filename)%(Extension)</Link>
-		</Content>
-	</ItemGroup>
-
-	<Target Name="ShowBuildVars" BeforeTargets="Build">
-		<Message Text="Platform=$(Platform)" Importance="High" />
-		<Message Text="PlatformTarget=$(PlatformTarget)" Importance="High" />
-		<Message Text="RuntimeIdentifier=$(RuntimeIdentifier)" Importance="High" />
-	</Target>
-
-	<Target Name="ShowFfmpegFiles" BeforeTargets="Build">
-		<Message Text="FFmpeg file: %(Content.Identity)" Importance="High" />
-	</Target>
 	<!--
 	Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
 	Explorer "Package and Publish" context menu entry to be enabled for this project even if

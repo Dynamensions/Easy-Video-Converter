@@ -112,8 +112,16 @@ public class BootstrapService : IBootstrapService
         // The three urls are defined in the top of this class. The app will choose the correct url based on the OS architecture.
         try
         {
-            string ffmpegPath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", "ffmpeg.exe");
-            string ffprobePath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", "ffprobe.exe");
+            string arch = RuntimeInformation.ProcessArchitecture switch
+            {
+                Architecture.X86 => "x86",
+                Architecture.X64 => "x64",
+                Architecture.Arm64 => "arm64",
+                _ => throw new NotSupportedException()
+            };
+
+            string ffmpegPath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", arch, "ffmpeg.exe");
+            string ffprobePath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", arch, "ffprobe.exe");
 
             // be sure the ffmpeg directory exists
             Directory.CreateDirectory(_ffmpegDir);
