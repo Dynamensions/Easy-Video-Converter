@@ -102,22 +102,29 @@ public class BootstrapService : IBootstrapService
 
     public async Task CopyFFMpegFromPackagingAsync()
     {
-        string arch = RuntimeInformation.ProcessArchitecture switch
+        // Copy the ffmpeg binaries from the packaging to the ffmpeg directory.
+        // This is used for the windows store version of the app, where we cannot download files from the internet.    
+        // Of this code was cloned, the ffmpeg binaries are not included due to copyright. You can download the binaries
+        // from the official ffmpeg website and place them in the ThirdParty/FFmpeg/(Runtime Identifier) directory.
+        // The app will copy them to the ffmpeg directory on first run.
+
+        // If you do not include the ffmpeg binaries in the packaging, the app will attempt to download them from the internet on first run.
+        // The three urls are defined in the top of this class. The app will choose the correct url based on the OS architecture.
+        try
         {
-            Architecture.X86 => "x86",
-            Architecture.X64 => "x64",
-            Architecture.Arm64 => "arm64",
-            _ => throw new NotSupportedException()
-        };
+            string ffmpegPath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", "ffmpeg.exe");
+            string ffprobePath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", "ffprobe.exe");
 
-        string ffmpegPath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", arch, "ffmpeg.exe");
-        string ffprobePath = Path.Combine(AppContext.BaseDirectory, "Assets", "FFmpeg", arch, "ffprobe.exe");
+            // be sure the ffmpeg directory exists
+            Directory.CreateDirectory(_ffmpegDir);
 
-        // be sure the ffmpeg directory exists
-        Directory.CreateDirectory(_ffmpegDir);
-
-        File.Copy(ffmpegPath, Path.Combine(_ffmpegDir, "ffmpeg.exe"), true);
-        File.Copy(ffprobePath, Path.Combine(_ffmpegDir, "ffprobe.exe"), true);
+            File.Copy(ffmpegPath, Path.Combine(_ffmpegDir, "ffmpeg.exe"), true);
+            File.Copy(ffprobePath, Path.Combine(_ffmpegDir, "ffprobe.exe"), true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "There was an error copying FFMPEG files from the packaging.");
+        }
     }
 
     /// <summary>

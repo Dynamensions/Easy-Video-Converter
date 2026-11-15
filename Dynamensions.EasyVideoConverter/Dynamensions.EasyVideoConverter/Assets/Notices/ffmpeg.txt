@@ -1,0 +1,8 @@
+﻿This product includes FFmpeg.
+
+FFmpeg is licensed under the LGPL v2.1 or later.
+
+Copyright (c) the FFmpeg developers.
+
+Source code for FFmpeg is available from:
+https://ffmpeg.org

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Dynamensions.EasyVideoConverter.Views.AboutPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:Dynamensions.EasyVideoConverter.Core.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Loaded="Page_Loaded">
+
+    <StackPanel Spacing="10">
+        <TextBlock Style="{StaticResource HeaderTextBlockStyle}">Notices</TextBlock>
+        
+        <ItemsRepeater x:Name="AboutItemsRepeater"
+                       ItemsSource="{x:Bind viewModel.Notices}"
+                       Margin="20">
+            <ItemsRepeater.ItemTemplate>
+                <DataTemplate x:DataType="models:Notice">
+                    <StackPanel Margin="10" Spacing="10">
+                        <TextBlock Text="{x:Bind Title}" FontSize="18" FontWeight="Bold" />
+                        <Rectangle Height="1" Stroke="{StaticResource AccentAAFillColorDefaultBrush}" />
+                        <TextBlock Text="{x:Bind Content}" FontSize="14" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
+    </StackPanel>
+</Page>

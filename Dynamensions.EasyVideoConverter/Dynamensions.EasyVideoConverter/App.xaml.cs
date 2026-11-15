@@ -77,6 +77,7 @@ public partial class App : Application
         services.AddSingleton<IEncoderCapabilitiesService, EncoderCapabilitiesService>();
         services.AddSingleton<IBootstrapService, BootstrapService>();
         services.AddSingleton<IMediaFileAnalyzerService, MediaFileAnalyzerService>();
+        services.AddSingleton<INoticeService, NoticeService>();
         services.AddSingleton<IPickerService, WinUIPickerService>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<ISubtitleExtractorService, SubtitleExtractorService>();
@@ -94,6 +95,7 @@ public partial class App : Application
         services.AddSingleton<SmartDecisionComplianceValidator>();
 
         // ViewModels
+        services.AddTransient<AboutViewModel>();
         services.AddTransient<BootstrapViewModel>();
         services.AddTransient<ProfileEditorViewModel>();
         services.AddTransient<QueueViewModel>();
@@ -101,6 +103,7 @@ public partial class App : Application
         services.AddTransient<LogsViewModel>();
 
         // Views
+        services.AddTransient<Views.AboutPage>();
         services.AddTransient<Views.BootstrapPage>();
         services.AddTransient<Views.QueuePage>();
         services.AddTransient<Views.SettingsPage>();

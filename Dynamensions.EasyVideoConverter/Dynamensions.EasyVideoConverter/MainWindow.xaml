@@ -31,6 +31,10 @@
                                 Icon="Document"
                                 Tag="LogsPage"/>
 
+            <NavigationViewItem Content="About"
+                                Icon="Help"
+                                Tag="AboutPage"/>
+
         </NavigationView.MenuItems>
 
         <Frame x:Name="ContentFrame"/>
