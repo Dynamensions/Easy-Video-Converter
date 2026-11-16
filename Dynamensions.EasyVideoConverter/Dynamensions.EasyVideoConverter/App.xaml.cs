@@ -20,12 +20,13 @@ namespace Dynamensions.EasyVideoConverter;
 
 public partial class App : Application
 {
-    // Set the base folder
-    private readonly string appFolder = AppContext.BaseDirectory;
-    // Set the local folder
-    private readonly string localFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
-    // Set the log folder
-    private readonly string logFolder = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Dynamensions.EasyVideoConverter", "Logs");
+    // Setup install path.
+    public static string InstallPath { get; } = Windows.ApplicationModel.Package.Current.InstalledLocation.Path;
+    public static string BaseLocal { get; } = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Dynamensions/EasyVideoConverter");
+    // Setup Log Path
+    public static string LogPath { get; } = Path.Combine(BaseLocal, "Logs");
+    public static string FfMpegDirectory { get; } = Path.Combine(BaseLocal, "FFmpeg");
+
 
     public IServiceProvider Services { get; }
     public Window Window { get; private set; } = default!;
@@ -40,14 +41,13 @@ public partial class App : Application
         RegisterExceptionHandlers();
 
         // Create directory
-        var logFolderCreated = Directory.CreateDirectory(logFolder);
-
+        Directory.CreateDirectory(LogPath);
 
         // Configure log
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.File(
-                Path.Combine(logFolder, "log-.txt"),
+                Path.Combine(LogPath, "log-.txt"),
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 7,
                 shared: true)
@@ -59,7 +59,7 @@ public partial class App : Application
         CleanupOldLogs();
     }
 
-    private static IServiceProvider ConfigureServices()
+    private static ServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
 
@@ -77,6 +77,7 @@ public partial class App : Application
         services.AddSingleton<IEncoderCapabilitiesService, EncoderCapabilitiesService>();
         services.AddSingleton<IBootstrapService, BootstrapService>();
         services.AddSingleton<IMediaFileAnalyzerService, MediaFileAnalyzerService>();
+        services.AddSingleton<INoticeService, NoticeService>();
         services.AddSingleton<IPickerService, WinUIPickerService>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<ISubtitleExtractorService, SubtitleExtractorService>();
@@ -94,6 +95,7 @@ public partial class App : Application
         services.AddSingleton<SmartDecisionComplianceValidator>();
 
         // ViewModels
+        services.AddTransient<AboutViewModel>();
         services.AddTransient<BootstrapViewModel>();
         services.AddTransient<ProfileEditorViewModel>();
         services.AddTransient<QueueViewModel>();
@@ -101,6 +103,7 @@ public partial class App : Application
         services.AddTransient<LogsViewModel>();
 
         // Views
+        services.AddTransient<Views.AboutPage>();
         services.AddTransient<Views.BootstrapPage>();
         services.AddTransient<Views.QueuePage>();
         services.AddTransient<Views.SettingsPage>();
@@ -205,14 +208,13 @@ public partial class App : Application
         }
     }
 
-    private void CleanupOldLogs()
+    private static void CleanupOldLogs()
     {
-        if (!Directory.Exists(logFolder))
-            return;
+        if (!Directory.Exists(LogPath)) return;
 
         var cutoff = DateTime.Now.AddDays(-2);
 
-        foreach (var file in Directory.GetFiles(logFolder, "*.log"))
+        foreach (var file in Directory.GetFiles(LogPath, "*.log"))
         {
             if (File.GetCreationTime(file) < cutoff)
             {

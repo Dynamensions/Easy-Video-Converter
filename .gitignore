@@ -426,3 +426,7 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+# Ignore all FFmpeg files
+*ffmpeg.exe
+*ffplay.exe
+*ffprobe.exe

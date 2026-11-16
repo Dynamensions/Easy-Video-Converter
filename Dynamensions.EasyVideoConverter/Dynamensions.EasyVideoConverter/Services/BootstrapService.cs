@@ -23,8 +23,6 @@ public class BootstrapService : IBootstrapService
     // BtbN release for the arm64. Gyan full is only x64.
     private const string FfmpegUrlarm64 = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-winarm64-gpl.zip";
 
-    // where the binaries are stored.
-    private readonly string _ffmpegDir;
     private bool _initialized;
     private readonly ILogger _logger;
 
@@ -35,20 +33,18 @@ public class BootstrapService : IBootstrapService
     /// Initializes a new <see cref="BootstrapService"/>
     /// </summary>
     /// <param name="settingsService">The <see cref="ISettingsService"/></param>
-    public BootstrapService(ISettingsService settingsService, ILogger<BootstrapService> logger)
+    public BootstrapService(ILogger<BootstrapService> logger)
     {
-        // set the ffmpeg directory. This is stored as a read-only string in the settings service.
-        _ffmpegDir = settingsService.FfMpegDirectory;
         // create the directory if it doesn't exist.
-        Directory.CreateDirectory(settingsService.FfMpegDirectory);
+        Directory.CreateDirectory(App.FfMpegDirectory);
         _logger = logger;
     }
 
     public bool Verify()
     {
         // check if required files exist (ffmpeg, ffmpeg)
-        var ffmpegExists = Path.Exists(Path.Combine(_ffmpegDir, "ffmpeg.exe"));
-        var ffprobeExists = Path.Exists(Path.Combine(_ffmpegDir, "ffprobe.exe"));
+        var ffmpegExists = Path.Exists(Path.Combine(App.FfMpegDirectory, "ffmpeg.exe"));
+        var ffprobeExists = Path.Exists(Path.Combine(App.FfMpegDirectory, "ffprobe.exe"));
 
         // if both exists, we're good.
         return ffmpegExists && ffprobeExists;
@@ -63,10 +59,12 @@ public class BootstrapService : IBootstrapService
 
             // probably redundant, but the call is not expensive so keep it.
             var isVerified = Verify();
+
+            // due to the restrictions of windows store certification, we need to ship the ffmpeg binaries with the app. The app will also offer a download option.
             if (isVerified) return;
 
             // one is missing. re-download...
-            var archivePath = Path.Combine(_ffmpegDir, "ffmpeg.7z");
+            var archivePath = Path.Combine(App.FfMpegDirectory, "ffmpeg.7z");
 
             // configure the url according to OS architecture
             var ffmpegUrl = GetFfmpegDownloadUrl();
@@ -96,6 +94,7 @@ public class BootstrapService : IBootstrapService
             _logger.LogError(ex, "There was an error preparing the application.");
         }
     }
+
 
     /// <summary>
     /// Gets the url according to the <see cref="RuntimeInformation.ProcessArchitecture"/>
@@ -166,7 +165,7 @@ public class BootstrapService : IBootstrapService
     /// <param name="archivePath">The path to the archive.</param>
     /// <param name="progress">A <see cref="IProgress{PrepareProgress}"/> callback for the download method.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> token used to stop operations.</param>
-    private async Task ExtractWithProgressAsync(string archivePath, IProgress<PrepareProgress> progress, CancellationToken cancellationToken)
+    private static async Task ExtractWithProgressAsync(string archivePath, IProgress<PrepareProgress> progress, CancellationToken cancellationToken)
     {
         PrepareProgress prepareProgress = new("Extracting files...");
         using var archive = ArchiveFactory.OpenArchive(archivePath);
@@ -187,7 +186,7 @@ public class BootstrapService : IBootstrapService
 
             if (!entry.IsDirectory && entry.Key != null)
             {
-                var outPath = Path.Combine(_ffmpegDir, entry.Key);
+                var outPath = Path.Combine(App.FfMpegDirectory, entry.Key);
                 Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
 
                 await entry.WriteToFileAsync(outPath, new ExtractionOptions()
@@ -205,23 +204,23 @@ public class BootstrapService : IBootstrapService
     /// </summary>
     /// <param name="progress">A <see cref="IProgress{PrepareProgress}"/> callback for the download method.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> token used to stop operations.</param>
-    private void MoveFiles(IProgress<PrepareProgress> progress, CancellationToken cancellationToken)
+    private static void MoveFiles(IProgress<PrepareProgress> progress, CancellationToken cancellationToken)
     {
         PrepareProgress prepareProgress = new("Preparing dependencies...", false);
         // Move DLLs from nested folders to ffmpegDir
         progress.Report(prepareProgress);
 
-        foreach (var file in Directory.GetFiles(_ffmpegDir, "*.exe", SearchOption.AllDirectories))
+        foreach (var file in Directory.GetFiles(App.FfMpegDirectory, "*.exe", SearchOption.AllDirectories))
         {
-            var dest = Path.Combine(_ffmpegDir, Path.GetFileName(file));
+            var dest = Path.Combine(App.FfMpegDirectory, Path.GetFileName(file));
             if (!File.Exists(dest)) File.Move(file, dest);
 
             if (cancellationToken.IsCancellationRequested) return;
         }
 
-        foreach (var file in Directory.GetFiles(_ffmpegDir, "*.dll", SearchOption.AllDirectories))
+        foreach (var file in Directory.GetFiles(App.FfMpegDirectory, "*.dll", SearchOption.AllDirectories))
         {
-            var dest = Path.Combine(_ffmpegDir, Path.GetFileName(file));
+            var dest = Path.Combine(App.FfMpegDirectory, Path.GetFileName(file));
             if (!File.Exists(dest)) File.Move(file, dest);
 
             if (cancellationToken.IsCancellationRequested) return;
@@ -234,7 +233,7 @@ public class BootstrapService : IBootstrapService
     /// <param name="archivePath"></param>
     /// <param name="progress">A <see cref="IProgress{PrepareProgress}"/> callback for the download method.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> token used to stop operations.</param>
-    private void Cleanup(string archivePath, IProgress<PrepareProgress> progress, CancellationToken cancellationToken)
+    private static void Cleanup(string archivePath, IProgress<PrepareProgress> progress, CancellationToken cancellationToken)
     {
         PrepareProgress prepareProgress = new("Cleaning up...", false);
 
@@ -244,7 +243,7 @@ public class BootstrapService : IBootstrapService
         File.Delete(archivePath);
 
         // Delete subdirectories.
-        foreach (var d in Directory.EnumerateDirectories(_ffmpegDir))
+        foreach (var d in Directory.EnumerateDirectories(App.FfMpegDirectory))
         {
             Directory.Delete(d, true);
             if (cancellationToken.IsCancellationRequested) return;
@@ -254,7 +253,7 @@ public class BootstrapService : IBootstrapService
     /// <summary>
     /// A helper method to check if the required dependencies are present.
     /// </summary>
-    private void ValidateCoreDependancies()
+    private static void ValidateCoreDependancies()
     {
         Require("ffmpeg.exe");
         Require("ffprobe.exe");
@@ -265,9 +264,9 @@ public class BootstrapService : IBootstrapService
     /// </summary>
     /// <param name="file">The name of the file.</param>
     /// <exception cref="FileNotFoundException">Thrown when the file is not found.</exception>
-    private void Require(string file)
+    private static void Require(string file)
     {
-        var path = Path.Combine(_ffmpegDir, file);
+        var path = Path.Combine(App.FfMpegDirectory, file);
         if (!File.Exists(path))
             throw new FileNotFoundException($"Missing FFmpeg library: {file}");
     }
@@ -298,4 +297,67 @@ public class BootstrapService : IBootstrapService
         return Task.CompletedTask;
     }
 
+    public Task CopyFFMpegBinariesFromPackagingAsync()
+    {
+        // Copy the ffmpeg binaries from the packaging to the ffmpeg directory.
+        // This is used for the windows store version of the app, where we cannot download files from the internet.    
+        // Of this code was cloned, the ffmpeg binaries are not included due to copyright. You can download the binaries
+        // from the official ffmpeg website and place them in the ThirdParty/FFmpeg/(Runtime Identifier) directory.
+        // The app will copy them to the ffmpeg directory on first run.
+
+        // If you do not include the ffmpeg binaries in the packaging, the app will attempt to download them from the internet on first run.
+        // The three urls are defined in the top of this class. The app will choose the correct url based on the OS architecture.
+        try
+        {
+            string ffmpegPath = Path.Combine(App.InstallPath, "Assets", "FFmpeg", "ffmpeg.exe");
+            string ffprobePath = Path.Combine(App.InstallPath, "Assets", "FFmpeg", "ffprobe.exe");
+
+            // be sure the ffmpeg directory exists
+            Directory.CreateDirectory(App.FfMpegDirectory);
+
+            File.Copy(ffmpegPath, Path.Combine(App.FfMpegDirectory, "ffmpeg.exe"), true);
+            File.Copy(ffprobePath, Path.Combine(App.FfMpegDirectory, "ffprobe.exe"), true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "There was an error copying FFMPEG files from the packaging.");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public async Task<(bool FFMPegCopied, bool FFProbeCopied)> CopyFFMpegBinariesFromPath(string path)
+    {
+        var ffMpegCopied = false;
+        var ffProbeCopied = false;
+
+        try
+        {
+            string ffmpegPath = Path.Combine(path, "ffmpeg.exe");
+            string ffprobePath = Path.Combine(path, "ffprobe.exe");
+
+            // be sure the ffmpeg directory exists
+            Directory.CreateDirectory(App.FfMpegDirectory);
+
+            if (!File.Exists(ffmpegPath))
+            {
+                File.Copy(ffmpegPath, Path.Combine(App.FfMpegDirectory, "ffmpeg.exe"), true);
+                ffMpegCopied = true;
+            }
+
+            if (!File.Exists(ffprobePath))
+            {
+                File.Copy(ffprobePath, Path.Combine(App.FfMpegDirectory, "ffprobe.exe"), true);
+                ffProbeCopied = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "There was an error copying FFMPEG files from the packaging.");
+        }
+
+        await Task.CompletedTask;
+
+        return (ffMpegCopied, ffProbeCopied);
+    }
 }

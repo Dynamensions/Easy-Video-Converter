@@ -5,25 +5,24 @@ using System.Linq;
 
 namespace Dynamensions.EasyVideoConverter.Logging;
 
-public class EncodeLogger : IDisposable
+public partial class EncodeLogger : IDisposable
 {
     // Set the base folder
     private readonly string _appFolder = AppContext.BaseDirectory;
     // Set the local folder
     private readonly Windows.Storage.StorageFolder _localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
     // Set the log folder
-    private readonly string _logFolder = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Dynamensions.EasyVideoConverter", "Logs");
 
     public ILogger Logger { get; }
 
     public EncodeLogger(string jobId)
     {
         var fileName = Path.Combine(
-            _logFolder,
+            App.LogPath,
             $"job-{jobId}_{DateTime.Now:yyyyMMdd_HHmmss}.log");
 
         // Create directory
-        Directory.CreateDirectory(_logFolder);
+        Directory.CreateDirectory(App.LogPath);
 
 #if DEBUG
         Logger = new LoggerConfiguration()
@@ -38,10 +37,9 @@ public class EncodeLogger : IDisposable
 #endif
     }
 
-    public void CleanLogs()
+    public static void CleanLogs()
     {
-        var logFolder = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Dynamensions.EasyVideoConverter", "Logs");
-        var logFiles = Directory.GetFiles(logFolder, "job-*.log");
+        var logFiles = Directory.GetFiles(App.LogPath, "job-*.log");
         var filenames = logFiles.Select(Path.GetFileName);
         foreach (var log in filenames)
         {
@@ -58,5 +56,6 @@ public class EncodeLogger : IDisposable
     public void Dispose()
     {
         (Logger as IDisposable)?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
