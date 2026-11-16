@@ -11,12 +11,12 @@ namespace Dynamensions.EasyVideoConverter.Services
     public class LogService : ILogService
     {
         // Set the log folder
-        private readonly string logFolder = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Dynamensions.EasyVideoConverter", "Logs");
+        private readonly string logFolder = App.LogPath;
 
         public Task DeleteAllJobLogs()
         {
             using var encodeLogger = new EncodeLogger("cleanup");
-            encodeLogger.CleanLogs();
+            EncodeLogger.CleanLogs();
             return Task.CompletedTask;
         }
 

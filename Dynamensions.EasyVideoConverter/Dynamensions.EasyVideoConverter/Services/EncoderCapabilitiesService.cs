@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Services;
 
-public partial class EncoderCapabilitiesService(ISettingsService settingsService, ILogger<EncoderCapabilitiesService> logger) : IEncoderCapabilitiesService
+public partial class EncoderCapabilitiesService(ILogger<EncoderCapabilitiesService> logger) : IEncoderCapabilitiesService
 {
     public EncoderCapabilities EncoderCapabilities { get; private set; } = new();
 
@@ -18,19 +18,30 @@ public partial class EncoderCapabilitiesService(ISettingsService settingsService
         var current = 1.0;
 
         progress.Report((current++ / total, "Testing Encoder Capabilities: NvEnc"));
-        var nvenc = await ProbeEncoderAsync("h264_nvenc", cancellationToken);
+        var (Output, Error, ExitCode) = await ProbeEncoderAsync("h264_nvenc", cancellationToken);
+        logger.LogInformation("NvEnc Probe Output: {Output}, Error: {Error}, ExitCode: {ExitCode}", Output, Error, ExitCode);
+
 
         progress.Report((current++ / total, "Testing Encoder Capabilities: Intel QSV"));
-        var qsv = await ProbeEncoderAsync("h264_qsv", cancellationToken);
+        var (qsvOutput, qsvError, qsvExitCode) = await ProbeEncoderAsync("h264_qsv", cancellationToken);
+        logger.LogInformation("Intel QSV Probe Output: {Output}, Error: {Error}, ExitCode: {ExitCode}", qsvOutput, qsvError, qsvExitCode);
+
 
         progress.Report((current++ / total, "Testing Encoder Capabilities: AMD AMF"));
-        var amf = await ProbeEncoderAsync("h264_amf", cancellationToken);
+        var (amfOutput, amfError, amfExitCode) = await ProbeEncoderAsync("h264_amf", cancellationToken);
+        logger.LogInformation("AMD AMF Probe Output: {Output}, Error: {Error}, ExitCode: {ExitCode}", amfOutput, amfError, amfExitCode);
 
         progress.Report((total, "Encoder requirements complete."));
         EncoderCapabilities.HasCpu = true;
-        EncoderCapabilities.HasNvidia = nvenc.ExitCode == 0;
-        EncoderCapabilities.HasIntelQsv = qsv.ExitCode == 0;
-        EncoderCapabilities.HasAmdAmf = amf.ExitCode == 0;
+        EncoderCapabilities.HasNvidia = ExitCode == 0;
+        EncoderCapabilities.HasIntelQsv = qsvExitCode == 0;
+        EncoderCapabilities.HasAmdAmf = amfExitCode == 0;
+
+        logger.LogInformation("Encoder Capabilities: HasCpu={HasCpu}, HasNvidia={HasNvidia}, HasIntelQsv={HasIntelQsv}, HasAmdAmf={HasAmdAmf}",
+            EncoderCapabilities.HasCpu,
+            EncoderCapabilities.HasNvidia,
+            EncoderCapabilities.HasIntelQsv,
+            EncoderCapabilities.HasAmdAmf);
 
         return EncoderCapabilities;
     }
@@ -38,7 +49,7 @@ public partial class EncoderCapabilitiesService(ISettingsService settingsService
     private async Task<(string Output, string Error, int ExitCode)> ProbeEncoderAsync(string arg, CancellationToken cancellationToken)
     {
         var output = await RunFfmpegAsync(
-            Path.Combine(settingsService.FfMpegDirectory, "ffmpeg.exe"),
+            Path.Combine(App.FfMpegDirectory, "ffmpeg.exe"),
             $"-hide_banner -f lavfi -i testsrc=size=1920x1080:rate=1 -frames:v 1 -c:v {arg} -f null -",
             cancellationToken);
 

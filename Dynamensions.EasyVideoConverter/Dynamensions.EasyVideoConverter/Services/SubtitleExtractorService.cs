@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Services;
 
-public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorService> logger, ISettingsService settingsService) : ISubtitleExtractorService
+public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorService> logger) : ISubtitleExtractorService
 {
     // ---------------------------------------------------------
     // 1. Extract subtitle for burn-in
@@ -167,7 +167,7 @@ public sealed partial class SubtitleExtractorService(ILogger<SubtitleExtractorSe
 
         args = "-y " + args;
 
-        string ffmpegPath = Path.Combine(settingsService.FfMpegDirectory, "ffmpeg.exe");
+        string ffmpegPath = Path.Combine(App.FfMpegDirectory, "ffmpeg.exe");
 
 
         var psi = new ProcessStartInfo

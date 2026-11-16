@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Services;
 
-public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTimeEstimatorProcess encodeTimeEstimator, ISettingsService settingsService) : ITranscodeService
+public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTimeEstimatorProcess encodeTimeEstimator) : ITranscodeService
 {
     public async Task TranscodeAsync(QueueItem queueItem, Action<(QueueItem item, double ProgressValue, double CurrentFPS, double speedX, double secondsRemaining)>? progressCallback)
     {
@@ -39,7 +39,7 @@ public partial class TranscodeService(ILogger<TranscodeService> logger, EncodeTi
         // ---------------------------------------------------------
         // EXECUTE FFMPEG
         // ---------------------------------------------------------
-        string? ffmpegPath = Path.Combine(settingsService.FfMpegDirectory, "ffmpeg.exe");
+        string? ffmpegPath = Path.Combine(App.FfMpegDirectory, "ffmpeg.exe");
 
         var process = new Process
         {

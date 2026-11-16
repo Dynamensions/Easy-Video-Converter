@@ -15,25 +15,25 @@ namespace Dynamensions.EasyVideoConverter.Core.ViewModels
         private readonly CancellationTokenSource cancellationTokenSource = new();
 
         [ObservableProperty]
-        private bool isVerified;
+        public partial bool IsVerified { get; set; }
 
         [ObservableProperty]
-        private PrepareProgress? prepareProgress;
+        public partial PrepareProgress? PrepareProgress { get; set; }
 
         [ObservableProperty]
-        private string? statusMessage;
+        public partial string? StatusMessage { get; set; }
 
         [ObservableProperty]
-        private bool isPercentVisible;
+        public partial bool IsPercentVisible { get; set; }
 
         [ObservableProperty]
-        private double percent;
+        public partial double Percent { get; set; }
 
         [ObservableProperty]
-        private string? percentMessage;
+        public partial string? PercentMessage { get; set; }
 
         [ObservableProperty]
-        private bool isConfirmingPrepare = true;
+        public partial bool IsConfirmingPrepare { get; set; } = true;
 
         [RelayCommand]
         private async Task PrepareApplicationAsync()
@@ -62,7 +62,7 @@ namespace Dynamensions.EasyVideoConverter.Core.ViewModels
             if (!IsVerified)
             {
                 // due to the restrictions of windows store certification, we need to ship the ffmpeg binaries with the app. The app will also offer a download option.
-                await ffmpegBootstrapService.CopyFFMpegFromPackagingAsync();
+                await ffmpegBootstrapService.CopyFFMpegBinariesFromPackagingAsync();
             }
 
             IsVerified = ffmpegBootstrapService.Verify();

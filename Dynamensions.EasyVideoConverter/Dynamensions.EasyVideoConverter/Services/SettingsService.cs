@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Text.Json;
-using Windows.Storage;
 
 namespace Dynamensions.EasyVideoConverter.Services;
 
@@ -18,26 +17,15 @@ public sealed partial class SettingsService : ISettingsService
     private readonly ILogger<SettingsService> logger;
 
     public AppSettings Settings { get; private set; } = default!;
-    public string FfMpegDirectory { get; }
+    public string FFMpegPath { get; } = App.FfMpegDirectory;
 
     public SettingsService(ILogger<SettingsService> logger)
     {
         this.logger = logger;
-        var baseLocal = ApplicationData.Current.LocalFolder.Path;
-        // Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
 
-        var folder = Path.Combine(baseLocal,
-            "Dynamensions.EasyVideoConverter");
+        Directory.CreateDirectory(App.BaseLocal);
+        settingsPath = Path.Combine(App.BaseLocal, "settings.json");
 
-        FfMpegDirectory = Path.Combine(baseLocal,
-            "Dynamensions",
-            "EasyVideoConverter",
-            "ffmpeg"
-        );
-
-        Directory.CreateDirectory(folder);
-
-        settingsPath = Path.Combine(folder, "settings.json");
         LogSettingsPath(settingsPath);
 
         Load();

@@ -16,15 +16,17 @@
     </Page.Resources>
 
     <ScrollViewer Padding="32">
-        <StackPanel Spacing="12">
+        <StackPanel Spacing="24">
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Video</TextBlock>
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Video options.</TextBlock>
+            </StackPanel>
 
             <!-- ========================= -->
             <!-- Video Section -->
             <!-- ========================= -->
             <StackPanel Spacing="12">
-                <TextBlock Text="Video Options"
-                           FontSize="24"
-                           FontWeight="SemiBold"/>
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}">Size Options</TextBlock>
 
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <CheckBox Content="Upscale video (if source is smaller than target, the video will be unscaled)"
@@ -36,11 +38,18 @@
                            Opacity="0.7"/>
             </StackPanel>
 
+            <Rectangle Height="1" Stroke="LightGray" />
+
             <!-- ========================= -->
             <!-- Subtitle Languages Section -->
             <!-- ========================= -->
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Subtitles</TextBlock>
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Subtitles options are only used when the video file contains subtitles.</TextBlock>
+            </StackPanel>
             <StackPanel Spacing="12">
-                <TextBlock Text="Preferred Subtitle Languages"
+                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}"
+                    Text="Preferred Subtitle Languages"
                            FontSize="24"
                            FontWeight="SemiBold"/>
 
@@ -52,7 +61,7 @@
 
                     <ListView ItemsSource="{Binding Languages}"
                               SelectionMode="None"
-                              Height="350">
+                              Height="280">
 
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="stModels:SubtitleLanguageItem">
@@ -65,9 +74,12 @@
 
                     </ListView>
                 </Border>
+      
             </StackPanel>
 
-
+            <Rectangle Height="1" Stroke="LightGray" />
+         
+            
             <!-- ========================= -->
             <!-- Burn-in Subtitle Section -->
             <!-- ========================= -->
@@ -81,9 +93,17 @@
                           DisplayMemberPath="Name"
                           Width="300"/>
 
-                <TextBlock FontSize="12"
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
                            Text="Burned-in subtitles become part of the video and cannot be turned off."
                            Opacity="{Binding SelectedBurnInLanguage, Converter={StaticResource NullToOpacityConverter}}"/>
+            </StackPanel>
+
+            <Rectangle Height="1" Stroke="LightGray" />
+
+
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Files</TextBlock>
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Options for file naming and location.</TextBlock>
             </StackPanel>
 
             <!-- ========================= -->
@@ -125,54 +145,54 @@
                            FontSize="12"
                            Opacity="0.7"/>
             </StackPanel>
-            
-            
+
+            <Rectangle Height="1" Stroke="LightGray" />
+
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">FFMPEG</TextBlock>
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Options for FFMPEG.</TextBlock>
+            </StackPanel>
             <!-- ========================= -->
             <!-- FFMPEG LOCATIONS -->
             <!-- ========================= -->
             <StackPanel Spacing="12">
-                <TextBlock Text="FFMPEG Binaries"
-                           FontSize="24"
-                           FontWeight="SemiBold"/>
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                           Text="FFMPEG Binaries" />
 
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBox Text="{Binding FfmpegPath, Mode=TwoWay}"
-                             Width="400"
-                             PlaceholderText="Select an ffmpeg binary..." />
-                    
                     <Button Content="Browse"
                             Command="{Binding BrowseFFMpegPathCommand}"
                             Width="100"/>
                 </StackPanel>
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Browse to a directory containing FFMPEG binaries you would like to use. Easy Video Creator will copy the files needed from the selected folder and place them into it's install directory. It will not run them from the browsed location."/>
 
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBox Text="{Binding FfprobePath, Mode=TwoWay}"
-                             Width="400"
-                             PlaceholderText="Select an ffprobe binary..." />
-
-                    <Button Content="Browse"
-                            Command="{Binding BrowseFFProbePathCommand}"
-                            Width="100"/>
-                </StackPanel>
-
-                <Rectangle Height="1" Stroke="LightGray" />
-
-                <TextBlock Text="NOTE: Toabide wit copyright, this app was shipped with LGPL FFMPEG binaries. Browse to the GPL or Full versions to unlock the full speed of FFPEG."
-                           FontSize="12"
-                           Opacity="0.7"/>
-                <TextBlock FontSize="12"
-                           Opacity="0.7">
-                    For the latest full FFMPEG Binaries, click <Hyperlink NavigateUri="https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z" Click="InlineHyperlink_Click">here</Hyperlink>.
-                </TextBlock>
-                <TextBlock FontSize="12"
-                           Opacity="0.7">
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
+                           Text="NOTE: Not all FFMPEG versions are capable of every encoding possible. For best results choose the full version. To abide with copyright, this app was shipped with LGPL FFMPEG binaries. Browse to the GPL or Full versions to unlock the full speed of FFMPEG." />
+                
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
+                    For the latest full FFMPEG Binaries, click <Hyperlink NavigateUri="https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z" Click="InlineHyperlink_Click">here</Hyperlink>. 
                     For all FFMPEG Binaries, click <Hyperlink NavigateUri="https://ffmpeg.org/download.html" Click="InlineHyperlink_Click">here.</Hyperlink>.
                 </TextBlock>
-                <TextBlock FontSize="12"
-                           Opacity="0.7">
-                    Be sure your binary is compiled in the same archetecture as your system (e.g. x64 or arm64).
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
+                    Be sure your binary is compiled in the same architecture as your system (e.g. x64 or arm64).
                 </TextBlock>
             </StackPanel>
+
+            <Rectangle Height="1" Stroke="LightGray" />
+
+            <!-- ========================= -->
+            <!-- Save Button -->
+            <!-- ========================= -->
+            
+            <Button Content="Save Settings"
+                    Command="{Binding SaveCommand}"
+                    HorizontalAlignment="Left"
+                    Width="200"
+                    Margin="0,12,0,0"/>
+            
+            <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
+                           Text="Save your changes." />
 
             <!-- FFMPEG -->
             <StackPanel>
@@ -180,15 +200,9 @@
                 <Image Source="/Assets/Icons/ffmpeg7597.jpg" Width="60" HorizontalAlignment="Left" />
             </StackPanel>
 
-
-            <!-- ========================= -->
-            <!-- Save Button -->
-            <!-- ========================= -->
-            <Button Content="Save Settings"
-                    Command="{Binding SaveCommand}"
-                    HorizontalAlignment="Left"
-                    Width="200"
-                    Margin="0,12,0,0"/>
         </StackPanel>
+        
+        
     </ScrollViewer>
 </Page>
+

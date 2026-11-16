@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Dynamensions.EasyVideoConverter.Services;
 
-public sealed partial class MediaFileAnalyzerService(ILogger<MediaFileAnalyzerService> logger, ISettingsService settingsService) : IMediaFileAnalyzerService
+public sealed partial class MediaFileAnalyzerService(ILogger<MediaFileAnalyzerService> logger) : IMediaFileAnalyzerService
 {
     // ---------------------------------------------------------
     // PUBLIC ENTRY POINT
@@ -69,7 +69,7 @@ public sealed partial class MediaFileAnalyzerService(ILogger<MediaFileAnalyzerSe
         // ---------------------------------------------------------
         // EXECUTE FFProbe
         // ---------------------------------------------------------
-        string ffProbePath = Path.Combine(settingsService.FfMpegDirectory, "ffprobe.exe");
+        string ffProbePath = Path.Combine(App.FfMpegDirectory, "ffprobe.exe");
 
 
         var process = new Process

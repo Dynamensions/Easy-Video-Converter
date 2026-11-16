@@ -6,6 +6,7 @@ using Dynamensions.EasyVideoConverter.Core.Models.Enums;
 using Dynamensions.EasyVideoConverter.Core.Models.Profiles;
 using Dynamensions.EasyVideoConverter.Core.Models.Subtitles;
 using Dynamensions.EasyVideoConverter.Core.Services;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -15,8 +16,10 @@ namespace Dynamensions.EasyVideoConverter.Core.ViewModels;
 
 public partial class SettingsViewModel : ObservableObject
 {
+    private readonly ILogger logger;
     private readonly ISettingsService settingsService;
     private readonly IPickerService pickerService;
+    private readonly IBootstrapService bootstrapService;
     private readonly Dictionary<string, string> filenamePresets = Models.FilenamePatternPresets.Presets;
 
     public ObservableCollection<SubtitleLanguageItem> Languages { get; } = [];
@@ -24,12 +27,51 @@ public partial class SettingsViewModel : ObservableObject
     public ObservableCollection<string> FilenamePatternPresets { get; } = [];
 
     [ObservableProperty]
-    private bool isSaving;
+    public partial bool IsSaving { get; set; }
 
-    public SettingsViewModel(ISettingsService settingsService, IPickerService pickerService)
+    // -----------------------------
+    // SETTINGS
+    // -----------------------------
+    [ObservableProperty]
+    public partial string? FfmpegPath { get; set; }
+
+    [ObservableProperty]
+    public partial string? FfProbePath { get; set; }
+
+    [ObservableProperty]
+    public partial bool? IsUpScalingVideo { get; set; }
+
+    [ObservableProperty]
+    public partial EncoderHardware Hardware { get; set; } = new()
     {
+        SupportsNvenc = true,
+        SupportsHevc = true,
+        SupportsAv1 = true,
+        CpuTier = 4,
+        GpuTier = 4,
+        MemoryGB = 32
+    };
+
+    [ObservableProperty]
+    public partial BurnInLanguageItem SelectedBurnInLanguage { get; set; }
+
+    [ObservableProperty]
+    public partial string? OutputDirectory { get; set; }
+
+    [ObservableProperty]
+    public partial string? SelectedFilenamePatternPreset { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FilenamePreview))]
+    public partial string? FilenamePattern { get; set; }
+
+
+    public SettingsViewModel(ILogger<SettingsViewModel> logger, ISettingsService settingsService, IPickerService pickerService, IBootstrapService bootstrapService)
+    {
+        this.logger = logger;
         this.settingsService = settingsService;
         this.pickerService = pickerService;
+        this.bootstrapService = bootstrapService;
 
         // Populate list with common languages
         var all = SubtitleLanguageCatalog.All;
@@ -56,52 +98,11 @@ public partial class SettingsViewModel : ObservableObject
 
         SelectedBurnInLanguage = BurninLanguages.Single(x => x.Code == settingsService.Settings.PreferredBurninLanguage);
 
-        FilenamePatternPresets = new ObservableCollection<string>(filenamePresets.Keys);
+        FilenamePatternPresets = [with(filenamePresets.Keys)];
         SelectedFilenamePatternPreset = settingsService.Settings.SelectedPatternPreset;
 
         OutputDirectory = settingsService.Settings.OutputFolder;
-
-        FfmpegPath = settingsService.Settings.FFmpegPath;
-        FfprobePath = settingsService.Settings.FFprobePath;
     }
-
-    // -----------------------------
-    // SETTINGS
-    // -----------------------------
-    [ObservableProperty]
-    private string? ffmpegPath;
-
-    [ObservableProperty]
-    private string? ffprobePath;
-
-    [ObservableProperty]
-    private bool? isUpscalingVideo;
-
-    [ObservableProperty]
-    private EncoderHardware hardware = new()
-    {
-        SupportsNvenc = true,
-        SupportsHevc = true,
-        SupportsAv1 = true,
-        CpuTier = 4,
-        GpuTier = 4,
-        MemoryGB = 32
-    };
-
-    [ObservableProperty]
-    private BurnInLanguageItem selectedBurnInLanguage;
-
-    [ObservableProperty]
-    private string? outputDirectory;
-
-    [ObservableProperty]
-    private string? selectedFilenamePatternPreset;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(FilenamePreview))]
-    private string? filenamePattern;
-
-
 
     partial void OnSelectedFilenamePatternPresetChanged(string? value)
     {
@@ -151,6 +152,7 @@ public partial class SettingsViewModel : ObservableObject
                 new() { Language = "en" },
                 new() { Language = "fr" },
             };
+
             return FilenamePatternEngine.Apply(
                  FilenamePattern,
                  "ExampleVideo.mkv",
@@ -174,7 +176,7 @@ public partial class SettingsViewModel : ObservableObject
     {
         IsSaving = true;
 
-        settingsService.Settings.UpscaleVideo = IsUpscalingVideo ?? false;
+        settingsService.Settings.UpscaleVideo = IsUpScalingVideo ?? false;
 
         settingsService.Settings.PreferredBurninLanguage = SelectedBurnInLanguage.Code;
 
@@ -184,8 +186,6 @@ public partial class SettingsViewModel : ObservableObject
         if (SelectedFilenamePatternPreset != null)
             settingsService.Settings.SelectedPatternPreset = SelectedFilenamePatternPreset;
 
-        if (FfmpegPath != null) settingsService.Settings.FFmpegPath = FfmpegPath;
-        if (FfprobePath != null) settingsService.Settings.FFprobePath = FfprobePath;
 
         settingsService.Save();
 
@@ -212,8 +212,20 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task BrowseFFProbePathAsync()
     {
+        logger.LogInformation("Browsing for FFProbe path.");
         var path = await pickerService.PickFileAsync();
-        if (path != null)
-            FfprobePath = path.Value.FilePath;
+        if (path == null) return;
+
+        // copy the files to the local ffmpeg directory. Overwrite if they already exist.
+        logger.LogInformation("Copying FFMPEG binaries from selected path.");
+        var (FFMPegCopied, FFProbeCopied) = await bootstrapService.CopyFFMpegBinariesFromPath(path.Value.FilePath);
+
+        if (!FFMPegCopied && !FFProbeCopied)
+        {
+            logger.LogError("Failed to copy FFMPEG binaries.");
+        }
+
+        if (FFMPegCopied) logger.LogInformation("FFMPEG copied successfully.");
+        if (FFProbeCopied) logger.LogInformation("FFProbe copied successfully.");
     }
 }
